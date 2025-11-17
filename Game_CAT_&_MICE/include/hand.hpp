@@ -7,22 +7,23 @@
 
 class Hand{
     int size;
-    int fullness;
     std::vector<ISpell*> spellCards;
 
 public:
     Hand(int size);
 
-    int getFullness() const;
-    void setFullness(int value);
-    int getSize() const;
+    int getCurrentSize() const;
     void setSize(int value);
-    spellType getNameSpellCard(int coord) const;
-
-    bool hasSpell(int index);
-    bool addSpellCard();
-    bool cast(int spellIndex, Field& field, Player& player, Enemy& enemy, std::pair<int, int> target);
+    int getSize() const;
     
+    spellType getNameSpellCard(int coord) const;
+    bool hasSpell(int index);
+    bool addRandomSpellCard(int koef);
+    void addConcreteSpellCard(spellType type, int koef);
+    void deleteRandomSpellCard(int quantity);
+    bool cast(int spellIndex, Field& field, Player& player, Enemy& enemy, std::pair<int, int> target);
+    void clearSpells();
+
     ~Hand();
 };
 

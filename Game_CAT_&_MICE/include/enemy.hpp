@@ -9,11 +9,12 @@ class Enemy{
     std::pair<int, int> coordinates;
 
 public:
-    Enemy();
+    Enemy(int h, int d);
 
     int getHealth() const;
     void setHealth(int newHealth);
     int getDamage() const;
+    void setDamage(int newDamage);
     std::pair<int, int> getCoordinates() const;
     void setCoordinates(int x, int y);
     bool isAlive();

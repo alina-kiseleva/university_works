@@ -6,12 +6,12 @@
 class DirectDamageSpell: public ISpell{
     int range;
     int damage;
+    int koef;
     
 public:
-    DirectDamageSpell();
+    DirectDamageSpell(int k);
     spellType name() override;
-    bool use(Field& field, Player& player, Enemy& enemy, std::pair<int, int> target) override;
-    bool use(Player& target, std::pair<int, int> tower) override;
+    bool use(Field& field, Player& player, Enemy& enemy, std::pair<int, int> target, bool towerUse) override;
 };
 
 #endif

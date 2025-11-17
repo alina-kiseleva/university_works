@@ -30,6 +30,7 @@ public:
     int getLength() const;
     int getWidth() const;
     bool canMoveTo(int x, int y);
+    void restoreField(std::vector<int> cellTypes, std::vector<int> cellCharacters, std::vector<int> cellDamages);
     ~Field();
 };
 

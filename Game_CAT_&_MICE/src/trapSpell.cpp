@@ -3,13 +3,15 @@
 #include "../include/enemy.hpp"
 #include "../include/field.hpp"
 
-TrapSpell::TrapSpell():damage(1){}
+TrapSpell::TrapSpell(int k):koef(k){
+    damage = koef;
+}
 
 spellType TrapSpell::name(){
     return spellType::TRAP_SPELL;
 }
 
-bool TrapSpell::use(Field& field, Player& player, Enemy& enemy, std::pair<int, int> target){
+bool TrapSpell::use(Field& field, Player& player, Enemy& enemy, std::pair<int, int> target, bool towerUse){
     if (field.canMoveTo(target.first, target.second)){
         if (field.getCellCharacter(target.first, target.second) == character::NOBODY){
             field.setCellCharacter(target.first, target.second, character::TRAP);
@@ -17,9 +19,5 @@ bool TrapSpell::use(Field& field, Player& player, Enemy& enemy, std::pair<int, i
             return 1;
         }
     }
-    return 0;
-}
-
-bool TrapSpell::use(Player& target, std::pair<int, int> tower){
     return 0;
 }

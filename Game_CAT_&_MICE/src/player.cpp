@@ -1,7 +1,9 @@
 #include "../include/player.hpp"
 
-Player::Player():health(10), score(0), damage(typeOfFight::CLOSE), coins(0), 
-    coordinates(std::make_pair(0, 0)), moveAbility(1), hand(Hand(3)){}
+Player::Player(int health) : health(health), score(0), combatType(typeOfFight::CLOSE), coins(0), 
+    coordinates(std::make_pair(0, 0)), moveAbility(1), hand(Hand(4)){
+        damage = static_cast<int>(combatType);
+    }
 
 int Player::getHealth() const{
     return health;
@@ -19,12 +21,30 @@ void Player::setScore(int newScore){
     score = newScore;
 }
 
-typeOfFight Player::getDamage() const{
+typeOfFight Player::getCombatType() const{
+    return combatType;
+}
+
+void Player::setDamage(int newDamage){
+    damage = newDamage;
+}
+
+int Player::getDamage() const{
     return damage;
 }
 
-void Player::setDamage(typeOfFight newDamage){
-    damage = newDamage;
+void Player::setCombatType(typeOfFight newType){
+    combatType = newType;
+    setDamage(static_cast<int>(combatType) * lvlDamageKoef);
+}
+
+int Player::getDamageKoef() const{
+    return lvlDamageKoef;
+}
+
+void Player::setDamageKoef(int newKoef){
+    lvlDamageKoef = newKoef;
+    setDamage(static_cast<int>(combatType) * lvlDamageKoef);
 }
 
 std::pair<int, int> Player::getCoordinates() const{
@@ -63,21 +83,26 @@ int Player::getHandSize() const{
     return hand.getSize();
 }
 
+int Player::getHandFullness() const{
+    return hand.getCurrentSize();
+}
+
 bool Player::isAlive(){
     return health > 0;
 }
 
 bool Player::selectCombatMode(typeOfFight mode){
-    if (damage != mode){
-        damage = mode;
+    if (combatType != mode){
+        combatType = mode;
+        damage = static_cast<int>(combatType) * lvlDamageKoef;
         return 1;
     }
     return 0;
 }
 
-bool Player::buySpell(){
+bool Player::buySpell(int koef){
     if (coins >= 5 && isAlive()){
-        bool success = hand.addSpellCard();
+        bool success = hand.addRandomSpellCard(koef);
         if (success){
             coins = coins - 5;
             return true;
@@ -88,4 +113,16 @@ bool Player::buySpell(){
 
 bool Player::applySpell(int spellIndex, Field& field, Enemy& enemy, std::pair<int, int> target){
     return hand.cast(spellIndex, field, *this, enemy, target);
+}
+
+void Player::deleteRandomSpell(int quantity){
+    hand.deleteRandomSpellCard(quantity);
+}
+
+void Player::clearHand(){
+    hand.clearSpells();
+}
+
+void Player::addSpell(spellType type, int koef){
+    hand.addConcreteSpellCard(type, koef);
 }

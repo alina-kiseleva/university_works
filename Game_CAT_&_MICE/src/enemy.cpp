@@ -1,6 +1,6 @@
 #include "../include/enemy.hpp"
 
-Enemy::Enemy():health(5), damage(1), coordinates(std::make_pair(-1, -1)){}
+Enemy::Enemy(int h, int d):health(h), damage(d), coordinates(std::make_pair(-1, -1)){}
 
 int Enemy::getHealth() const{
     return health;
@@ -12,6 +12,10 @@ void Enemy::setHealth(int newHealth){
 
 int Enemy::getDamage() const{
     return damage;
+}
+
+void Enemy::setDamage(int newDamage){
+    damage = newDamage;
 }
 
 std::pair<int, int> Enemy::getCoordinates() const{

@@ -3,13 +3,15 @@
 #include "../include/enemy.hpp"
 #include "../include/field.hpp"
 
-AreaDamageSpell::AreaDamageSpell():range(4), damage(1){}
+AreaDamageSpell::AreaDamageSpell(int k):range(4), koef(k){
+    damage = koef;
+}
 
 spellType AreaDamageSpell::name(){
     return spellType::AREA_DAMAGE_SPELL;
 }
 
-bool AreaDamageSpell::use(Field& field, Player& player, Enemy& enemy, std::pair<int, int> target){
+bool AreaDamageSpell::use(Field& field, Player& player, Enemy& enemy, std::pair<int, int> target, bool towerUse){
     auto [playerX, playerY] = player.getCoordinates();
     int targetX = target.first;
     int targetY = target.second;
@@ -37,8 +39,4 @@ bool AreaDamageSpell::use(Field& field, Player& player, Enemy& enemy, std::pair<
         return false;
     }
     return true;
-}
-
-bool AreaDamageSpell::use(Player& target, std::pair<int, int> tower){
-    return false;
 }

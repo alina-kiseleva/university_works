@@ -17,8 +17,7 @@ enum class spellType{
 class ISpell{
 public:
     virtual spellType name() = 0;
-    virtual bool use(Field& field, Player& player, Enemy& enemy, std::pair<int, int> target) = 0;
-    virtual bool use(Player& target, std::pair<int, int> tower) = 0;
+    virtual bool use(Field& field, Player& player, Enemy& enemy, std::pair<int, int> target, bool towerUse) = 0;
 };
 
 #endif

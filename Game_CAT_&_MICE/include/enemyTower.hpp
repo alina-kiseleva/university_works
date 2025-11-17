@@ -9,7 +9,7 @@ class EnemyTower{
 
 public:
     EnemyTower();
-    bool attackTarget(Player& target);
+    bool attackTarget(Field& field, Player& target, Enemy& enemy);
     void setCoordinates(int x, int y);
     std::pair<int, int> getCoordinates() const;
 };

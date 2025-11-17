@@ -2,9 +2,9 @@
 
 EnemyTower::EnemyTower():towerPosition(std::make_pair(-1, -1)){}
 
-bool EnemyTower::attackTarget(Player& target){
-    DirectDamageSpell spell;
-    return spell.use(target, towerPosition);
+bool EnemyTower::attackTarget(Field& field, Player& target, Enemy& enemy){
+    DirectDamageSpell spell(1);
+    return spell.use(field, target, enemy, towerPosition, 1);
 }
 
 void EnemyTower::setCoordinates(int x, int y){

@@ -1,4 +1,0 @@
-/home/alinak1s/alishak1s/cpp_projects/my_game/build/CMakeFiles/my_game.dir
-/home/alinak1s/alishak1s/cpp_projects/my_game/build/CMakeFiles/testing.dir
-/home/alinak1s/alishak1s/cpp_projects/my_game/build/CMakeFiles/edit_cache.dir
-/home/alinak1s/alishak1s/cpp_projects/my_game/build/CMakeFiles/rebuild_cache.dir

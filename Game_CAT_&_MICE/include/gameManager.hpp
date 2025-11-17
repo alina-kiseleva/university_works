@@ -5,17 +5,32 @@
 #include "player.hpp"
 #include "enemy.hpp"
 #include "enemyTower.hpp"
+#include "saveManager.hpp"
+
+struct LevelAttributes{
+    std::vector<spellType> spells;
+    int enemyHP = 5;
+    int playerHP = 10;
+    int fieldWidth = 16;
+    int fieldLength = 18;
+    int spellDamageKoef = 1;
+    int playerDamageKoef = 1;
+    int enemyDamage = 1;
+    int goalMoves = 30;
+    int goalScore = 1;
+};
 
 class GameManager{
     Player player;
     Enemy enemy;
     Field field;
     EnemyTower tower;
+    int enemyLvlHp;
     int moves;
-    bool isFinished;
 
 public:
     GameManager();
+    GameManager(LevelAttributes levelParameters);
     Player getPlayer() const;
     void setPlayer(Player newPlayer);
     Enemy getEnemy() const;
@@ -23,18 +38,19 @@ public:
     EnemyTower getTower() const;
     int getMoves() const;
     void setMoves(int newValue);
-    bool getIsFinished() const;
-    void setIsFinished(bool condition);
 
     void placeCharacter(character person);
     bool isEnemyInRange(int range);
-    void movePlayer(char direction);
+    bool movePlayer(char direction);
     void moveEnemy();
     void attackEnemy();
     void attackPlayer();
     bool applySpell(int spellIndex, std::pair<int, int> target);
-    void buySpell();
-    bool towerAttack();
+    void buySpell(int koef);
+    bool towerAttack(Player& target);
+
+    SaveData convertToSaveData();
+    void unpackSaveData(SaveData data, int spellsKoef, int playerKoef);
 };
 
 #endif

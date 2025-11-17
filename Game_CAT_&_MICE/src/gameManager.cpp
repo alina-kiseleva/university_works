@@ -1,7 +1,22 @@
 #include "../include/gameManager.hpp"
 
-GameManager::GameManager():player(Player()), enemy(Enemy()), 
+GameManager::GameManager():player(Player(10)), enemy(Enemy(5, 1)), enemyLvlHp(5),
         field(Field(15, 15)), moves(0), tower(EnemyTower()){}
+
+GameManager::GameManager(LevelAttributes lvlParameters)
+    :   player(Player(lvlParameters.playerHP)), 
+        enemy(Enemy(lvlParameters.enemyHP, lvlParameters.enemyDamage)),
+        enemyLvlHp(lvlParameters.enemyHP),
+        field(Field(lvlParameters.fieldLength, lvlParameters.fieldWidth)),
+        moves(0), tower(EnemyTower()) {
+
+    player.clearHand();
+    for (int i = 0; i < lvlParameters.spells.size(); ++i){
+        player.addSpell(lvlParameters.spells[i], lvlParameters.spellDamageKoef);
+    }
+
+    player.setDamageKoef(lvlParameters.playerDamageKoef);
+}
 
 Player GameManager::getPlayer() const{
     return player;
@@ -31,14 +46,6 @@ void GameManager::setMoves(int newMoves){
     moves = newMoves;
 }
 
-bool GameManager::getIsFinished() const{
-    return isFinished;
-}
-
-void GameManager::setIsFinished(bool condition){
-    isFinished = condition;
-}
-
 void GameManager::placeCharacter(character person){
     int x, y;
     int length = field.getLength();
@@ -56,7 +63,7 @@ void GameManager::placeCharacter(character person){
     if (person == character::ENEMY){
         field.setCellCharacter(x, y, character::ENEMY);
         enemy.setCoordinates(x, y);
-        enemy.setHealth(5);
+        enemy.setHealth(enemyLvlHp);
     } else if (person == character::ENEMY_TOWER){
         field.setCellCharacter(x, y, character::ENEMY_TOWER);
         tower.setCoordinates(x, y);
@@ -75,9 +82,10 @@ void GameManager::attackEnemy(){
     int enemyHealth = enemy.getHealth();
     
     if (enemyHealth > 0){
-        int playerDamage = static_cast<int>(player.getDamage());
+        int playerDamage = player.getDamage();
+        int playerTypeDamage = static_cast<int>(player.getCombatType());
 
-        if ((playerDamage == 1 && isEnemyInRange(2)) || (playerDamage == 2 && isEnemyInRange(1))){
+        if ((playerTypeDamage == 1 && isEnemyInRange(2)) || (playerTypeDamage == 2 && isEnemyInRange(1))){
             enemyHealth -= playerDamage;
             if (enemyHealth < 0) {
                 enemyHealth = 0;
@@ -90,16 +98,15 @@ void GameManager::attackEnemy(){
                 auto [enemyX, enemyY] = enemy.getCoordinates();
                 field.setCellCharacter(enemyX, enemyY, character::NOBODY);
                 player.setScore(player.getScore() + 1);
-                if (!isFinished){
-                    placeCharacter(character::ENEMY);
-                }
+                placeCharacter(character::ENEMY);
             }
         }
     }
 }
 
-void GameManager::movePlayer(char direction){
-    if (player.isAlive() && player.getMoveAbility()){
+bool GameManager::movePlayer(char direction){
+    bool isActed = false;
+    if (player.isAlive()){
         auto [playerX, playerY] = player.getCoordinates();
 
         int newX = playerX;
@@ -114,21 +121,21 @@ void GameManager::movePlayer(char direction){
 
         if (field.canMoveTo(newX, newY) && field.getCellCharacter(newX, newY) != character::TRAP){
             if (field.getCellCharacter(newX, newY) != character::ENEMY){
-                field.setCellCharacter(playerX, playerY, character::NOBODY);
-                field.setCellCharacter(newX, newY, character::PLAYER);
-                player.setCoordinates(newX, newY);
-                ++moves;
+                if (player.getMoveAbility()){ 
+                    field.setCellCharacter(playerX, playerY, character::NOBODY);
+                    field.setCellCharacter(newX, newY, character::PLAYER);
+                    player.setCoordinates(newX, newY);
+                    ++moves;
 
-                if (field.getCellType(newX, newY) == typeOfCell::FREEZE){
-                    player.setMoveAbility(0);
-                }
+                    if (field.getCellType(newX, newY) == typeOfCell::FREEZE){
+                        player.setMoveAbility(0);
+                    }
+                } else ++moves;
+                isActed = true;
             }
         }
-    } else if (!player.getMoveAbility()){
-        ++moves;
-    } else if (!player.isAlive()){
-        isFinished = 1;
     }
+    return isActed;
 }
 
 void GameManager::attackPlayer(){
@@ -143,6 +150,12 @@ void GameManager::moveEnemy(){
     if (enemy.isAlive()){
         auto [enemyX, enemyY] = enemy.getCoordinates();
         auto [playerX, playerY] = player.getCoordinates();
+
+        int distance = abs(enemyX - playerX) + abs(enemyY - playerY);
+        if (distance == 1) {
+            attackPlayer();
+            return;
+        }
 
         std::vector<std::pair<int, int>> allMoves;
         for (auto [dx, dy] : std::vector<std::pair<int, int>>{{-1,0}, {1,0}, {0,-1}, {0,1}}){
@@ -180,13 +193,8 @@ void GameManager::moveEnemy(){
                 } else {
                     field.setCellCharacter(bestMove.first, bestMove.second, character::NOBODY);
                     field.setCellDamage(bestMove.first, bestMove.second, 0);
-                    if (!isFinished){
-                        placeCharacter(character::ENEMY);
-                    }
+                    placeCharacter(character::ENEMY);
                 }
- 
-            } else if (field.getCellCharacter(bestMove.first, bestMove.second) == character::PLAYER){
-                attackPlayer();
             }
         }
     }
@@ -203,13 +211,82 @@ bool GameManager::applySpell(int spellIndex, std::pair<int, int> target){
     return 0;
 }
 
-void GameManager::buySpell(){
-    bool success = player.buySpell();
+void GameManager::buySpell(int koef){
+    bool success = player.buySpell(koef);
     if (success){
         ++moves;
     }
 }
 
-bool GameManager::towerAttack(){
-    return tower.attackTarget(player);
+bool GameManager::towerAttack(Player& target){
+    return tower.attackTarget(field, target, enemy);
+}
+
+SaveData GameManager::convertToSaveData(){
+    SaveData data;
+
+    data.fieldLength = field.getLength();
+    data.fieldWidth = field.getWidth();
+
+    for (int i = 0; i < data.fieldLength; ++i){
+        for (int j = 0; j < data.fieldWidth; ++j){
+            data.cellTypes.push_back((int)field.getCellType(i, j));
+            data.cellCharacters.push_back((int)field.getCellCharacter(i, j));
+            data.cellDamages.push_back((int)field.getCellDamage(i, j));
+        }
+    }
+
+    data.playerHealth = player.getHealth();
+    data.playerCombatType = (int)player.getCombatType();
+    data.playerDamage = player.getDamage();
+    data.playerDamageKoef = player.getDamageKoef();
+    data.coins = player.getCoins();
+    data.score = player.getScore();
+    data.playerMoveAbility = player.getMoveAbility();
+    data.playerCoordinates = player.getCoordinates();
+    
+    for (int i = 0; i < 4; ++i){
+        if (player.hasSpell(i)){
+            data.spellTypes.push_back((int)player.getSpellName(i));
+        }
+    }
+
+    data.enemyHealth = enemy.getHealth();
+    data.enemyDamage = enemy.getDamage();
+    data.enemyCoordinates = enemy.getCoordinates();
+
+    data.towerCoordinates = tower.getCoordinates();
+    data.moves = moves;
+
+    return data;
+}
+
+void GameManager::unpackSaveData(SaveData data, int spellsKoef, int playerKoef){
+    Field newField(data.fieldLength, data.fieldWidth);
+    newField.restoreField(data.cellTypes, data.cellCharacters, data.cellDamages);
+    field = newField;
+
+    player.clearHand();
+    for (int i = 0; i < data.spellTypes.size(); ++i){
+        spellType type = static_cast<spellType>(data.spellTypes[i]);
+        player.addSpell(type, spellsKoef);
+    }
+
+    player.setHealth(data.playerHealth);
+    player.setCombatType(static_cast<typeOfFight>(data.playerCombatType));
+    player.setDamage(data.playerDamage);
+    player.setDamageKoef(data.playerDamageKoef);
+    player.setCoins(data.coins);
+    player.setScore(data.score);
+    player.setMoveAbility(data.playerMoveAbility);
+    player.setCoordinates(data.playerCoordinates.first, data.playerCoordinates.second);
+    player.setDamageKoef(playerKoef);
+
+    enemy.setHealth(data.enemyHealth);
+    enemy.setDamage(data.enemyDamage);
+    enemy.setCoordinates(data.enemyCoordinates.first, data.enemyCoordinates.second);
+    
+    tower.setCoordinates(data.towerCoordinates.first, data.towerCoordinates.second);
+    
+    moves = data.moves;
 }
