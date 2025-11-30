@@ -33,11 +33,13 @@ public:
     void start();
     void checkGameState();
     void saveGame();
+    // bool checkSaveData(SaveData data);
+    // int makeHash(SaveData data);
+    // int mix(int hash, int value);
     void loadGame();
     void handleInput();
     void handleMenuClick(int mouseX, int mouseY);
     void handleMouseClick(int mouseX, int mouseY);
-    void initializeSpellCards();
     void nextLevel();
     bool checkButton(int mouseX, int mouseY, int btnX, int btnY, int btnWidth, int btnHeight);
 };

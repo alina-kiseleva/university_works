@@ -2,10 +2,11 @@
 #include <iostream>
 
 Game::Game() : gameStatus(GameStatus::MAIN_MENU), gameManager(GameManager()), 
-            GUI(gameManager.getField().getLength(), gameManager.getField().getLength()){
-    Field tempField = gameManager.getField();
-    int length = tempField.getLength();
-    int width = tempField.getWidth();
+            GUI(gameManager.getField().getLength(), gameManager.getField().getWidth()){
+
+    Field field = gameManager.getField();
+    int length = field.getLength();
+    int width = field.getWidth();
 
     windowWidth = width * CELL_SIZE + 200;
     windowHeight = length * CELL_SIZE + 120;
@@ -123,6 +124,7 @@ void Game::handleInput() {
                     break;
                 case sf::Keyboard::F:
                     gameManager.attackEnemy();
+                    gameManager.setMoves(gameManager.getMoves() + 1);
                     playerActed = 1;
                     break;
                 case sf::Keyboard::R:
@@ -181,8 +183,7 @@ void Game::handleInput() {
                 }
 
                 player = gameManager.getPlayer();
-                EnemyTower tower = gameManager.getTower();
-                auto [towerX, towerY] = tower.getCoordinates();
+                auto [towerX, towerY] = gameManager.getTowerCoords();
                 auto [playerX, playerY] = player.getCoordinates();
                 int distance = std::abs(towerX - playerX) + std::abs(towerY - playerY);
 
@@ -286,7 +287,7 @@ void Game::handleMenuClick(int mouseX, int mouseY){
             int startX = (windowWidth - buttonWidth) / 2;
             
             if (checkButton(mouseX, mouseY, startX, startY, buttonWidth, buttonHeight)) {
-                levelParameters.playerHP += 10;
+                levelParameters.playerImproveHP += 10;
                 goToNextLVL = 1;
             }
             else if (checkButton(mouseX, mouseY, startX, startY + buttonHeight + buttonSpacing, buttonWidth, buttonHeight)) {
@@ -320,7 +321,9 @@ void Game::saveGame(){
     data.spellsKoef = levelParameters.spellDamageKoef;
     data.goalMoves = levelParameters.goalMoves;
     data.goalScore = levelParameters.goalScore;
+    data.playerImproveHP = levelParameters.playerImproveHP;
     data.cellSize = CELL_SIZE;
+    data.hash = saver.makeHash(data);
     if (!saver.saveToJson(data)){
         std::cout << "Failed to save game." << std::endl;
     }
@@ -328,7 +331,7 @@ void Game::saveGame(){
 
 void Game::loadGame(){
     SaveData data;
-    if (!saver.loadFromJson(data)){
+    if (!saver.loadFromJson(data) || !saver.checkSaveData(data)){
         std::cout << "Failed to load saved game. File is incorrect or empty." << std::endl;
     } else {
         gameStatus = static_cast<GameStatus>(data.gameCondition);
@@ -336,6 +339,7 @@ void Game::loadGame(){
         levelParameters.spellDamageKoef = data.spellsKoef;
         levelParameters.playerDamageKoef = data.playerDamageKoef;
         levelParameters.playerHP = data.playerHealth;
+        levelParameters.playerImproveHP = data.playerImproveHP;
         levelParameters.goalMoves = data.goalMoves;
         levelParameters.goalScore = data.goalScore;
         levelParameters.enemyDamage = data.enemyDamage;
@@ -344,7 +348,7 @@ void Game::loadGame(){
         levelParameters.fieldWidth = data.fieldWidth;
 
         CELL_SIZE = data.cellSize;
-        gameManager.unpackSaveData(data, data.spellsKoef, data.playerDamageKoef);
+        gameManager.unpackSaveData(data);
     }
 }
 
@@ -371,11 +375,11 @@ void Game::nextLevel(){
         CELL_SIZE = 40;
     }
 
-    levelParameters.playerHP += 5;
-    levelParameters.enemyHP += 1;
     levelParameters.enemyDamage += 1;
     levelParameters.goalMoves += 5;
     levelParameters.goalScore += 1;
+    levelParameters.playerHP = 10 + 5 * (levelParameters.enemyDamage - 1) + levelParameters.playerImproveHP;
+    levelParameters.enemyHP = 5 + (levelParameters.enemyDamage - 1);
 
     start();
 }

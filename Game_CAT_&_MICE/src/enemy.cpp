@@ -1,6 +1,16 @@
 #include "../include/enemy.hpp"
 
-Enemy::Enemy(int h, int d):health(h), damage(d), coordinates(std::make_pair(-1, -1)){}
+Enemy::Enemy(int h, int d):health(h), damage(d), coordinates(std::make_pair(-1, -1)){
+    baseHealth = h;
+}
+
+int Enemy::getBaseHealth() const{
+    return baseHealth;
+}
+
+void Enemy::setBaseHealth(int newHealth){
+    baseHealth = newHealth;
+}
 
 int Enemy::getHealth() const{
     return health;

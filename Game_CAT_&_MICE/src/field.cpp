@@ -114,6 +114,7 @@ void Field::restoreField(std::vector<int> cellTypes, std::vector<int> cellCharac
         for (int j = 0; j < width; ++j){
             int index = i * width + j;
             area[i][j]->setType(static_cast<typeOfCell>(cellTypes[index]));
+            character person = static_cast<character>(cellCharacters[index]);
             area[i][j]->setCharacter(static_cast<character>(cellCharacters[index]));
             area[i][j]->setDamage(cellDamages[index]);
         }

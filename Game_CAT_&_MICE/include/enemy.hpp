@@ -5,12 +5,15 @@
 
 class Enemy{
     int health;
+    int baseHealth;
     int damage;
     std::pair<int, int> coordinates;
 
 public:
     Enemy(int h, int d);
 
+    void setBaseHealth(int newHealth);
+    int getBaseHealth() const;
     int getHealth() const;
     void setHealth(int newHealth);
     int getDamage() const;

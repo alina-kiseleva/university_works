@@ -14,6 +14,7 @@ bool SaveManager::saveToJson(SaveData saveData) {
             {"playerCombatType", saveData.playerCombatType},
             {"playerDamage", saveData.playerDamage},
             {"playerDamageKoef", saveData.playerDamageKoef},
+            {"playerImproveHealth", saveData.playerImproveHP},
             {"playerCoins", saveData.coins},
             {"playerScore", saveData.score},
             {"playerMoveAbility", saveData.playerMoveAbility},
@@ -31,7 +32,9 @@ bool SaveManager::saveToJson(SaveData saveData) {
             {"gameCondition", saveData.gameCondition},
             {"goalMoves", saveData.goalMoves},
             {"goalScore", saveData.goalScore},
-            {"cellSize", saveData.cellSize}
+            {"cellSize", saveData.cellSize},
+
+            {"hash", saveData.hash}
         };
         
         std::ofstream file(filePath);
@@ -74,6 +77,7 @@ bool SaveManager::loadFromJson(SaveData& saveData) {
         saveData.playerCombatType = jsonStorage.at("playerCombatType").get<int>();
         saveData.playerDamage = jsonStorage.at("playerDamage").get<int>();
         saveData.playerDamageKoef = jsonStorage.at("playerDamageKoef").get<int>();
+        saveData.playerImproveHP = jsonStorage.at("playerImproveHealth").get<int>();
         saveData.coins = jsonStorage.at("playerCoins").get<int>();
         saveData.score = jsonStorage.at("playerScore").get<int>();
         saveData.playerMoveAbility = jsonStorage.at("playerMoveAbility").get<bool>();
@@ -98,6 +102,8 @@ bool SaveManager::loadFromJson(SaveData& saveData) {
         saveData.goalScore = jsonStorage.at("goalScore").get<int>();
         saveData.cellSize = jsonStorage.at("cellSize").get<int>();
         
+        saveData.hash = jsonStorage.at("hash").get<int>();
+
         std::cout << "Game loaded from: " << filePath << std::endl;
         return true;
         
@@ -105,4 +111,56 @@ bool SaveManager::loadFromJson(SaveData& saveData) {
         std::cerr << "Load error: " << e.what() << std::endl;
         return false;
     }
+}
+
+int SaveManager::makeHash(SaveData data){
+    int hash = 0;
+    
+    hash = mix(hash, data.fieldLength);
+    hash = mix(hash, data.fieldWidth);
+    hash = mix(hash, data.cellSize);
+    hash = mix(hash, data.playerHealth);
+    hash = mix(hash, data.playerCombatType);
+    hash = mix(hash, data.playerDamage);
+    hash = mix(hash, data.playerDamageKoef);
+    hash = mix(hash, data.playerImproveHP);
+    hash = mix(hash, data.coins);
+    hash = mix(hash, data.score);
+    hash = mix(hash, data.playerMoveAbility);
+    hash = mix(hash, data.playerCoordinates.first);
+    hash = mix(hash, data.playerCoordinates.second);
+    hash = mix(hash, data.spellsKoef);
+    hash = mix(hash, data.enemyHealth);
+    hash = mix(hash, data.enemyDamage);
+    hash = mix(hash, data.enemyCoordinates.first);
+    hash = mix(hash, data.enemyCoordinates.second);
+    hash = mix(hash, data.towerCoordinates.first);
+    hash = mix(hash, data.towerCoordinates.second);
+    hash = mix(hash, data.moves);
+    hash = mix(hash, data.gameCondition);
+    hash = mix(hash, data.goalMoves);
+    hash = mix(hash, data.goalScore);
+
+    for (int value : data.cellTypes){
+        hash = mix(hash, value);
+    }
+    for (int value : data.cellDamages){
+        hash = mix(hash, value);
+    }
+    for (int value : data.cellCharacters){
+        hash = mix(hash, value);
+    }
+    for (int value : data.spellTypes){
+        hash = mix(hash, value);
+    }
+    
+    return hash;
+}
+
+int SaveManager::mix(int hash, int value){
+    return ((hash << 5) + hash) + value;
+}
+
+bool SaveManager::checkSaveData(SaveData data){
+    return data.hash == makeHash(data);
 }

@@ -18,6 +18,7 @@ struct SaveData{
     int playerCombatType;
     int playerDamage;
     int playerDamageKoef;
+    int playerImproveHP;
     int coins;
     int score;
     bool playerMoveAbility;
@@ -36,6 +37,8 @@ struct SaveData{
     int goalMoves;
     int goalScore;
     int cellSize;
+
+    int hash;
 };
 
 class SaveManager{
@@ -43,6 +46,9 @@ class SaveManager{
 public:
     bool saveToJson(SaveData saveData);
     bool loadFromJson(SaveData& saveData);
+    bool checkSaveData(SaveData data);
+    int makeHash(SaveData data);
+    int mix(int hash, int value);
 };
 
 #endif

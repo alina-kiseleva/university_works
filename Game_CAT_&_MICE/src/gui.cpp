@@ -54,13 +54,11 @@ void GameGraphics::initializeSpellCards(Player player, Field field) {
 
     int cardCount = player.getHandSize();
 
-    // Вычисляем начальную позицию для центрирования
     int totalWidth = field.getWidth() * CELL_SIZE;
     int cardsTotalWidth = cardCount * CARD_WIDTH + (cardCount - 1) * CARD_MARGIN;
     int startX = (totalWidth - cardsTotalWidth) / 2;
 
     for (int i = 0; i < cardCount; ++i) {
-        // Фон карточки
         sf::RectangleShape cardBackground(sf::Vector2f(CARD_WIDTH, CARD_HEIGHT));
         cardBackground.setPosition(startX + i * (CARD_WIDTH + CARD_MARGIN), CARDS_Y_POSITION);
         cardBackground.setFillColor(sf::Color(50, 50, 80)); // Темно-синий фон
@@ -68,21 +66,18 @@ void GameGraphics::initializeSpellCards(Player player, Field field) {
         cardBackground.setOutlineColor(sf::Color::White);
         cardBackgrounds.push_back(cardBackground);
 
-        // Заголовок карточки
         sf::Text cardTitle;
         cardTitle.setFont(font);
         cardTitle.setCharacterSize(12);
         cardTitle.setFillColor(sf::Color::Yellow);
         cardTitle.setPosition(startX + i * (CARD_WIDTH + CARD_MARGIN) + 5, CARDS_Y_POSITION + 5);
 
-        // Описание карточки
         sf::Text cardDescription;
         cardDescription.setFont(font);
         cardDescription.setCharacterSize(10);
         cardDescription.setFillColor(sf::Color::White);
         cardDescription.setPosition(startX + i * (CARD_WIDTH + CARD_MARGIN) + 5, CARDS_Y_POSITION + 25);
 
-        // Получаем информацию о заклинании
         if (player.hasSpell(i)) {
             spellType type = player.getSpellName(i);
             std::string title, description;
@@ -128,7 +123,6 @@ void GameGraphics::update(GameManager gameManager, int selectedSpellCard, sf::Re
 
     updateRangeOverlay(gameManager, currentOverlayType, showRangeOverlay, selectedSpellCard);
 
-    // Обновляем внешний вид карточек
     for (int i = 0; i < cardBackgrounds.size(); ++i) {
         // Обновляем цвет рамки для выбранной карточки
         if (i == selectedSpellCard) {
@@ -139,7 +133,6 @@ void GameGraphics::update(GameManager gameManager, int selectedSpellCard, sf::Re
             cardBackgrounds[i].setOutlineThickness(2);
         }
 
-        // Обновляем содержимое карточек
         if (player.hasSpell(i)) {
             spellType type = player.getSpellName(i);
             std::string title, description;
@@ -200,7 +193,6 @@ void GameGraphics::update(GameManager gameManager, int selectedSpellCard, sf::Re
         "in under " + std::to_string(lvl.goalMoves) + " moves!"
     );
 
-    // Центрируем тексты победы/проигрыша
     sf::FloatRect victoryBounds = victoryText.getLocalBounds();
     victoryText.setPosition(
         (window.getSize().x - victoryBounds.width) / 2,
@@ -221,7 +213,6 @@ void GameGraphics::render(GameManager gameManager, sf::RenderWindow& window, Gam
     int length = field.getLength();
     int width = field.getWidth();
 
-    // Отрисовываем поле
     for (int i = 0; i < length; ++i) {
         for (int j = 0; j < width; ++j) {
             typeOfCell cellType = field.getCellType(i, j);
@@ -241,7 +232,7 @@ void GameGraphics::render(GameManager gameManager, sf::RenderWindow& window, Gam
                     cellSprite.setTextureRect(sf::IntRect(30, 30, CELL_SIZE, CELL_SIZE));
                     break;
             }
-            // Устанавливаем квадратный размер
+
             cellSprite.setPosition(j * CELL_SIZE, i * CELL_SIZE);
             cellSprite.setScale(
                 CELL_SIZE / cellSprite.getLocalBounds().width,
@@ -301,7 +292,6 @@ void GameGraphics::render(GameManager gameManager, sf::RenderWindow& window, Gam
     cardsBackground.setFillColor(sf::Color(40, 40, 40));
     window.draw(cardsBackground);
 
-    // Отрисовка карточек заклинаний
     for (auto& card : cardBackgrounds) {
         window.draw(card);
     }
@@ -312,7 +302,7 @@ void GameGraphics::render(GameManager gameManager, sf::RenderWindow& window, Gam
         window.draw(description);
     }
 
-    // Рисуем темный фон для UI панели
+    //Темный фон для UI панели
     int fieldWidth = width * CELL_SIZE;
     sf::RectangleShape uiBackground;
     uiBackground.setSize(sf::Vector2f(window.getSize().x - fieldWidth, window.getSize().y));
@@ -382,8 +372,7 @@ void GameGraphics::showSpellRange(GameManager gameManager, int range) {
 }
 
 void GameGraphics::showTowerRange(GameManager gameManager) {
-    EnemyTower tower = gameManager.getTower();
-    auto [towerX, towerY] = tower.getCoordinates();
+    auto [towerX, towerY] = gameManager.getTowerCoords();
     Field field = gameManager.getField();
     int towerRange = 3; // Радиус атаки башни
 
@@ -424,14 +413,12 @@ void GameGraphics::clearRangeOverlay() {
 }
 
 void GameGraphics::initializeMenuUI() {
-    // Заголовок главного меню
     menuTitle.setFont(fontResult);
     menuTitle.setString("CAT & MICE");
     menuTitle.setCharacterSize(64);
     menuTitle.setFillColor(sf::Color::Yellow);
     menuTitle.setStyle(sf::Text::Bold);
 
-    // Заголовок завершения уровня
     levelCompleteTitle.setFont(fontResult);
     levelCompleteTitle.setString("LEVEL COMPLETED!");
     levelCompleteTitle.setCharacterSize(48);
@@ -442,7 +429,6 @@ void GameGraphics::initializeMenuUI() {
 void GameGraphics::renderMainMenu(sf::RenderWindow& window, GameStatus gameStatus) {
     window.clear(sf::Color(30, 30, 50)); // Темно-синий фон
 
-    // Центрируем и рисуем заголовок
     sf::FloatRect titleBounds = menuTitle.getLocalBounds();
     menuTitle.setPosition(
         (window.getSize().x - titleBounds.width) / 2,
@@ -450,7 +436,6 @@ void GameGraphics::renderMainMenu(sf::RenderWindow& window, GameStatus gameStatu
     );
     window.draw(menuTitle);
 
-    // Создаем кнопки главного меню
     menuButtons.clear();
     menuButtonTexts.clear();
 
@@ -462,7 +447,6 @@ void GameGraphics::renderMainMenu(sf::RenderWindow& window, GameStatus gameStatu
     int startY = (window.getSize().y - totalHeight) / 2;
 
     for (size_t i = 0; i < buttonLabels.size(); ++i) {
-        // Фон кнопки
         sf::RectangleShape button(sf::Vector2f(buttonWidth, buttonHeight));
         button.setPosition((window.getSize().x - buttonWidth) / 2, 
                           startY + i * (buttonHeight + buttonSpacing));
@@ -471,7 +455,6 @@ void GameGraphics::renderMainMenu(sf::RenderWindow& window, GameStatus gameStatu
         button.setOutlineColor(sf::Color::White);
         menuButtons.push_back(button);
 
-        // Текст кнопки
         sf::Text buttonText;
         buttonText.setFont(font);
         buttonText.setString(buttonLabels[i]);
@@ -486,7 +469,6 @@ void GameGraphics::renderMainMenu(sf::RenderWindow& window, GameStatus gameStatu
         menuButtonTexts.push_back(buttonText);
     }
 
-    // Рисуем кнопки
     for (const auto& button : menuButtons) {
         window.draw(button);
     }
@@ -494,7 +476,6 @@ void GameGraphics::renderMainMenu(sf::RenderWindow& window, GameStatus gameStatu
         window.draw(text);
     }
 
-    // Информация о сохранении
     sf::Text saveInfo;
     saveInfo.setFont(font);
     saveInfo.setString("Press 'L' to save progress");
@@ -514,7 +495,6 @@ void GameGraphics::renderLevelComplete(sf::RenderWindow& window, const GameManag
 
     Player player = gameManager.getPlayer();
 
-    // Заголовок
     sf::FloatRect titleBounds = levelCompleteTitle.getLocalBounds();
     levelCompleteTitle.setPosition(
         (window.getSize().x - titleBounds.width) / 2,
@@ -522,7 +502,6 @@ void GameGraphics::renderLevelComplete(sf::RenderWindow& window, const GameManag
     );
     window.draw(levelCompleteTitle);
 
-    // Статистика
     sf::Text statsText;
     statsText.setFont(font);
     statsText.setString(
@@ -539,7 +518,6 @@ void GameGraphics::renderLevelComplete(sf::RenderWindow& window, const GameManag
     );
     window.draw(statsText);
 
-    // Кнопки завершения уровня
     levelCompleteButtons.clear();
     levelCompleteButtonTexts.clear();
 
@@ -573,7 +551,6 @@ void GameGraphics::renderLevelComplete(sf::RenderWindow& window, const GameManag
         levelCompleteButtonTexts.push_back(buttonText);
     }
 
-    // Рисуем кнопки
     for (const auto& button : levelCompleteButtons) {
         window.draw(button);
     }
@@ -600,7 +577,6 @@ void GameGraphics::renderGameOver(sf::RenderWindow& window, const GameManager& g
 
     Player player = gameManager.getPlayer();
 
-    // Заголовок
     sf::FloatRect gameOverBounds = gameOverText.getLocalBounds();
     gameOverText.setPosition(
         (window.getSize().x - gameOverBounds.width) / 2,
@@ -608,7 +584,6 @@ void GameGraphics::renderGameOver(sf::RenderWindow& window, const GameManager& g
     );
     window.draw(gameOverText);
 
-    // Причина проигрыша
     sf::Text reasonText;
     reasonText.setFont(font);
     reasonText.setCharacterSize(24);
@@ -624,7 +599,6 @@ void GameGraphics::renderGameOver(sf::RenderWindow& window, const GameManager& g
     );
     window.draw(reasonText);
 
-    // Статистика
     sf::Text statsText;
     statsText.setFont(font);
     statsText.setString(
@@ -640,7 +614,6 @@ void GameGraphics::renderGameOver(sf::RenderWindow& window, const GameManager& g
     );
     window.draw(statsText);
 
-    // Кнопка возврата в меню
     gameOverButtons.clear();
     gameOverButtonTexts.clear();
 
@@ -668,7 +641,6 @@ void GameGraphics::renderGameOver(sf::RenderWindow& window, const GameManager& g
     );
     gameOverButtonTexts.push_back(buttonText);
 
-    // Рисуем кнопку
     window.draw(button);
     window.draw(buttonText);
 
@@ -687,7 +659,6 @@ void GameGraphics::renderGameOver(sf::RenderWindow& window, const GameManager& g
 }
 
 void GameGraphics::initializeImproveUI() {
-    // Заголовок экрана улучшений
     improveTitle.setFont(fontResult);
     improveTitle.setString("CHOOSE IMPROVEMENT");
     improveTitle.setCharacterSize(48);
@@ -700,7 +671,6 @@ void GameGraphics::renderImprove(sf::RenderWindow& window, const GameManager& ga
 
     Player player = gameManager.getPlayer();
 
-    // Заголовок
     sf::FloatRect titleBounds = improveTitle.getLocalBounds();
     improveTitle.setPosition(
         (window.getSize().x - titleBounds.width) / 2,
@@ -708,7 +678,6 @@ void GameGraphics::renderImprove(sf::RenderWindow& window, const GameManager& ga
     );
     window.draw(improveTitle);
 
-    // Создаем кнопки улучшений
     improveButtons.clear();
     improveButtonTexts.clear();
     improveDescriptions.clear();
@@ -732,7 +701,6 @@ void GameGraphics::renderImprove(sf::RenderWindow& window, const GameManager& ga
     int startY = (window.getSize().y - totalHeight) / 2;
 
     for (size_t i = 0; i < buttonLabels.size(); ++i) {
-        // Фон кнопки
         sf::RectangleShape button(sf::Vector2f(buttonWidth, buttonHeight));
         button.setPosition((window.getSize().x - buttonWidth) / 2, 
                           startY + i * (buttonHeight + buttonSpacing));
@@ -742,7 +710,6 @@ void GameGraphics::renderImprove(sf::RenderWindow& window, const GameManager& ga
         button.setOutlineColor(sf::Color::White);
         improveButtons.push_back(button);
 
-        // Текст кнопки
         sf::Text buttonText;
         buttonText.setFont(font);
         buttonText.setString(buttonLabels[i]);
@@ -757,7 +724,6 @@ void GameGraphics::renderImprove(sf::RenderWindow& window, const GameManager& ga
         );
         improveButtonTexts.push_back(buttonText);
 
-        // Описание улучшения
         sf::Text descriptionText;
         descriptionText.setFont(font);
         descriptionText.setString(descriptions[i]);
@@ -772,7 +738,6 @@ void GameGraphics::renderImprove(sf::RenderWindow& window, const GameManager& ga
         improveDescriptions.push_back(descriptionText);
     }
 
-    // Рисуем кнопки и текст
     for (const auto& button : improveButtons) {
         window.draw(button);
     }
@@ -783,7 +748,6 @@ void GameGraphics::renderImprove(sf::RenderWindow& window, const GameManager& ga
         window.draw(desc);
     }
 
-    // Инструкция
     sf::Text instruction;
     instruction.setFont(font);
     instruction.setString("Choose one improvement for the next level");

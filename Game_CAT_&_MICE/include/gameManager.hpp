@@ -15,6 +15,7 @@ struct LevelAttributes{
     int fieldLength = 18;
     int spellDamageKoef = 1;
     int playerDamageKoef = 1;
+    int playerImproveHP = 0;
     int enemyDamage = 1;
     int goalMoves = 30;
     int goalScore = 1;
@@ -25,7 +26,6 @@ class GameManager{
     Enemy enemy;
     Field field;
     EnemyTower tower;
-    int enemyLvlHp;
     int moves;
 
 public:
@@ -35,7 +35,7 @@ public:
     void setPlayer(Player newPlayer);
     Enemy getEnemy() const;
     Field getField() const;
-    EnemyTower getTower() const;
+    std::pair<int, int> getTowerCoords() const;
     int getMoves() const;
     void setMoves(int newValue);
 
@@ -50,7 +50,7 @@ public:
     bool towerAttack(Player& target);
 
     SaveData convertToSaveData();
-    void unpackSaveData(SaveData data, int spellsKoef, int playerKoef);
+    void unpackSaveData(SaveData data);
 };
 
 #endif
