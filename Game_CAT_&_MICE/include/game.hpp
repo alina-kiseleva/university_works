@@ -2,46 +2,48 @@
 #define GAME_H
 
 #include "gameManager.hpp"
-#include "gui.hpp"
 #include "saveManager.hpp"
+#include "gameTypes.hpp"
 
 class Game{
-    sf::RenderWindow window;
     GameManager gameManager;
     GameStatus gameStatus;
-    GameGraphics GUI;
     SaveManager saver;
 
     LevelAttributes levelParameters;
     bool goToNextLVL = 0;
 
-    int windowWidth;
-    int windowHeight;
+    int windowWidth = 15 * 48 + 200;
+    int windowHeight = 15 * 48 + 120;
 
-    int selectedSpellCard = -1;
-    bool waitingForTarget = false;
+    int freezed = 1;
 
     bool isTowerAttack = false;
     int timeWithoutAttack = 0;
-
-    int CELL_SIZE = 48;
-    OverlayType currentOverlayType = OverlayType::NONE;
-    bool showRangeOverlay;
 
 public:
     Game();
     void start();
     void checkGameState();
     void saveGame();
-    // bool checkSaveData(SaveData data);
-    // int makeHash(SaveData data);
-    // int mix(int hash, int value);
     void loadGame();
     void handleInput();
-    void handleMenuClick(int mouseX, int mouseY);
-    void handleMouseClick(int mouseX, int mouseY);
+
+    bool movePlayer(char direction);
+    bool attack();
+    bool changeCombat(typeOfFight type);
+    bool buySpell();
+    bool hasSpell(int position);
+    bool changesAfterMove();
+
+    bool handleMenuClick(int mouseX, int mouseY);
+    bool handleMouseClick(int mouseX, int mouseY, int selectedSpellCard);
     void nextLevel();
     bool checkButton(int mouseX, int mouseY, int btnX, int btnY, int btnWidth, int btnHeight);
+
+    GameStatus getGameStatus() const;
+    LevelAttributes getLVLParameters() const;
+    GameManager getGameManager() const;
 };
 
 #endif

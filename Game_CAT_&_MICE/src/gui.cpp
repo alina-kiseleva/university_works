@@ -1,10 +1,10 @@
-#include "../include/game.hpp"
-#include <iostream>
+#include "../include/gui.hpp"
 
-GameGraphics::GameGraphics(int length, int width){
+GameGraphics::GameGraphics(){
     loadAssets();
-    initializeMenuUI();
-    initializeImproveUI();
+
+    int length = 15;
+    int width = 15;
 
     CARDS_Y_POSITION = length * CELL_SIZE + 20;
 
@@ -18,17 +18,29 @@ GameGraphics::GameGraphics(int length, int width){
     instructionText.setFillColor(sf::Color::White);
     instructionText.setPosition(width * CELL_SIZE + 10, 310);
 
-    victoryText.setFont(fontResult);
-    victoryText.setCharacterSize(48);
-    victoryText.setFillColor(sf::Color::Green);
-    victoryText.setString("VICTORY!");
-    victoryText.setStyle(sf::Text::Bold);
+    menuTitle.setFont(fontResult);
+    menuTitle.setString("CAT & MICE");
+    menuTitle.setCharacterSize(64);
+    menuTitle.setFillColor(sf::Color::Yellow);
+    menuTitle.setStyle(sf::Text::Bold);
+
+    levelCompleteTitle.setFont(fontResult);
+    levelCompleteTitle.setString("LEVEL COMPLETED!");
+    levelCompleteTitle.setCharacterSize(48);
+    levelCompleteTitle.setFillColor(sf::Color::Green);
+    levelCompleteTitle.setStyle(sf::Text::Bold);
 
     gameOverText.setFont(fontResult);
     gameOverText.setCharacterSize(48);
     gameOverText.setFillColor(sf::Color::Red);
     gameOverText.setString("GAME OVER");
     gameOverText.setStyle(sf::Text::Bold);
+
+    improveTitle.setFont(fontResult);
+    improveTitle.setString("CHOOSE IMPROVEMENT");
+    improveTitle.setCharacterSize(48);
+    improveTitle.setFillColor(sf::Color::Yellow);
+    improveTitle.setStyle(sf::Text::Bold);
 }
 
 void GameGraphics::loadAssets() {
@@ -47,21 +59,44 @@ void GameGraphics::updateCellSize(int newSize){
     CELL_SIZE = newSize;
 }
 
-void GameGraphics::initializeSpellCards(Player player, Field field) {
+void GameGraphics::render(renderData renderParameters, GameStatus gameStatus){
+    updateCellSize(renderParameters.LVLParameters.cellSize);
+    initializeSpellCards(renderParameters);
+    switch (gameStatus) {
+        case GameStatus::MAIN_MENU:
+            renderMainMenu(renderParameters.window, gameStatus);
+            break;
+        case GameStatus::IMPROVE:
+            renderImprove(renderParameters);
+            break;
+        case GameStatus::PLAYING:
+            update(renderParameters);
+            renderPlaying(renderParameters, gameStatus);
+            break;
+        case GameStatus::VICTORY:
+            renderLevelComplete(renderParameters);
+            break;
+        case GameStatus::DEFEAT:
+            renderGameOver(renderParameters);
+            break;
+    }
+}
+
+void GameGraphics::initializeSpellCards(renderData renderParameters) {
     cardBackgrounds.clear();
     cardTitles.clear();
     cardDescriptions.clear();
 
-    int cardCount = player.getHandSize();
+    int cardCount = renderParameters.player.getHandSize();
 
-    int totalWidth = field.getWidth() * CELL_SIZE;
+    int totalWidth = renderParameters.field.getWidth() * CELL_SIZE;
     int cardsTotalWidth = cardCount * CARD_WIDTH + (cardCount - 1) * CARD_MARGIN;
     int startX = (totalWidth - cardsTotalWidth) / 2;
 
     for (int i = 0; i < cardCount; ++i) {
         sf::RectangleShape cardBackground(sf::Vector2f(CARD_WIDTH, CARD_HEIGHT));
         cardBackground.setPosition(startX + i * (CARD_WIDTH + CARD_MARGIN), CARDS_Y_POSITION);
-        cardBackground.setFillColor(sf::Color(50, 50, 80)); // Темно-синий фон
+        cardBackground.setFillColor(sf::Color(50, 50, 80));
         cardBackground.setOutlineThickness(2);
         cardBackground.setOutlineColor(sf::Color::White);
         cardBackgrounds.push_back(cardBackground);
@@ -78,54 +113,21 @@ void GameGraphics::initializeSpellCards(Player player, Field field) {
         cardDescription.setFillColor(sf::Color::White);
         cardDescription.setPosition(startX + i * (CARD_WIDTH + CARD_MARGIN) + 5, CARDS_Y_POSITION + 25);
 
-        if (player.hasSpell(i)) {
-            spellType type = player.getSpellName(i);
-            std::string title, description;
-
-            switch (type) {
-                case spellType::DIRECT_DAMAGE_SPELL:
-                    title = "Direct Damage";
-                    description = "Single target\nRange: 4\nDamage: 2";
-                    cardBackground.setFillColor(sf::Color(120, 50, 50)); // Красный
-                    break;
-                case spellType::AREA_DAMAGE_SPELL:
-                    title = "Area Damage";
-                    description = "2x2 area\nRange: 5\nDamage: 1";
-                    cardBackground.setFillColor(sf::Color(50, 120, 50)); // Зеленый
-                    break;
-                case spellType::TRAP_SPELL:
-                    title = "Trap";
-                    description = "Place trap\nEnemy takes\ndamage on step";
-                    cardBackground.setFillColor(sf::Color(50, 50, 120)); // Синий
-                    break;
-            }
-
-            cardTitle.setString(title);
-            cardDescription.setString(description);
-        } else {
-            cardTitle.setString("Empty Slot");
-            cardDescription.setString("No spell\nPress R to buy");
-            cardBackground.setFillColor(sf::Color(80, 80, 80)); // Серый
-        }
-
         cardTitles.push_back(cardTitle);
         cardDescriptions.push_back(cardDescription);
     }
 }
 
-void GameGraphics::update(GameManager gameManager, int selectedSpellCard, sf::RenderWindow& window, 
-    OverlayType currentOverlayType, bool showRangeOverlay, LevelAttributes lvl) {
-   
-    Player player = gameManager.getPlayer();
-    Enemy enemy = gameManager.getEnemy();
+void GameGraphics::update(renderData renderParameters) {
+    Player player = renderParameters.player;
+    Enemy enemy = renderParameters.enemy;
     int score = player.getScore();
-    int moves = gameManager.getMoves();
+    int moves = renderParameters.currentMoves;
 
-    updateRangeOverlay(gameManager, currentOverlayType, showRangeOverlay, selectedSpellCard);
+    updateRangeOverlay(renderParameters);
 
     for (int i = 0; i < cardBackgrounds.size(); ++i) {
-        // Обновляем цвет рамки для выбранной карточки
-        if (i == selectedSpellCard) {
+        if (i == renderParameters.selectedSpellCard) {
             cardBackgrounds[i].setOutlineColor(sf::Color::Yellow);
             cardBackgrounds[i].setOutlineThickness(4);
         } else {
@@ -140,17 +142,17 @@ void GameGraphics::update(GameManager gameManager, int selectedSpellCard, sf::Re
             switch (type) {
                 case spellType::DIRECT_DAMAGE_SPELL:
                     title = "Direct Damage";
-                    description = "Single target\nRange: 3\nDamage: " + std::to_string(2*lvl.spellDamageKoef);
+                    description = "Single target\nRange: 3\nDamage: " + std::to_string(2*renderParameters.LVLParameters.spellDamageKoef);
                     cardBackgrounds[i].setFillColor(sf::Color(120, 50, 50));
                     break;
                 case spellType::AREA_DAMAGE_SPELL:
                     title = "Area Damage";
-                    description = "2x2 area\nRange: 4\nDamage: " + std::to_string(lvl.spellDamageKoef);
+                    description = "2x2 area\nRange: 4\nDamage: " + std::to_string(renderParameters.LVLParameters.spellDamageKoef);
                     cardBackgrounds[i].setFillColor(sf::Color(50, 120, 50));
                     break;
                 case spellType::TRAP_SPELL:
                     title = "Trap";
-                    description = "Place trap\nEnemy takes\ndamage " + std::to_string(lvl.spellDamageKoef) + " on step";
+                    description = "Place trap\nEnemy takes\ndamage " + std::to_string(renderParameters.LVLParameters.spellDamageKoef) + " on step";
                     cardBackgrounds[i].setFillColor(sf::Color(50, 50, 120));
                     break;
             }
@@ -167,11 +169,11 @@ void GameGraphics::update(GameManager gameManager, int selectedSpellCard, sf::Re
     infoText.setString(
         std::string("PLAYER\n") + 
         "Health: " + std::to_string(player.getHealth()) + "\n" +
-        "Score: " + std::to_string(score) + "/" + std::to_string(lvl.goalScore) + "\n" +
+        "Score: " + std::to_string(score) + "/" + std::to_string(renderParameters.LVLParameters.goalScore) + "\n" +
         "Coins: " + std::to_string(player.getCoins()) + "\n" +
-        "Moves: " + std::to_string(moves) + "/" + std::to_string(lvl.goalMoves) + "\n" +
-        "Damage: " + (player.getCombatType() == typeOfFight::CLOSE ? "Close(" + std::to_string(2*lvl.playerDamageKoef) + ")" : 
-        "Far(" + std::to_string(lvl.playerDamageKoef) + ")" ) + "\n" +
+        "Moves: " + std::to_string(moves) + "/" + std::to_string(renderParameters.LVLParameters.goalMoves) + "\n" +
+        "Damage: " + (player.getCombatType() == typeOfFight::CLOSE ? "Close(" + std::to_string(2*renderParameters.LVLParameters.playerDamageKoef) + ")" : 
+        "Far(" + std::to_string(renderParameters.LVLParameters.playerDamageKoef) + ")" ) + "\n" +
         "Can move: " + (player.getMoveAbility() ? "YES" : "NO") + "\n\n" + 
         "ENEMY\n" +
         "Health: " + std::to_string(enemy.getHealth()) + "\n" + 
@@ -189,27 +191,16 @@ void GameGraphics::update(GameManager gameManager, int selectedSpellCard, sf::Re
         "Esc - Cancel spell\n"
         "Click - Select target\n\n"
         "GOAL:\n"
-        "Defeat " + std::to_string(lvl.goalScore) + " enemies\n"
-        "in under " + std::to_string(lvl.goalMoves) + " moves!"
-    );
-
-    sf::FloatRect victoryBounds = victoryText.getLocalBounds();
-    victoryText.setPosition(
-        (window.getSize().x - victoryBounds.width) / 2,
-        (window.getSize().y - victoryBounds.height) / 2
-    );
-
-    sf::FloatRect gameOverBounds = gameOverText.getLocalBounds();
-    gameOverText.setPosition(
-        (window.getSize().x - gameOverBounds.width) / 2,
-        (window.getSize().y - gameOverBounds.height) / 2
+        "Defeat " + std::to_string(renderParameters.LVLParameters.goalScore) + " enemies\n"
+        "in under " + std::to_string(renderParameters.LVLParameters.goalMoves) + " moves!"
     );
 }
 
-void GameGraphics::render(GameManager gameManager, sf::RenderWindow& window, GameStatus gameStatus) {
+void GameGraphics::renderPlaying(renderData renderParameters, GameStatus gameStatus) {
+    sf::RenderWindow& window = *renderParameters.window;
     window.clear(sf::Color::Black);
 
-    Field field = gameManager.getField();
+    Field field = renderParameters.field;
     int length = field.getLength();
     int width = field.getWidth();
 
@@ -249,8 +240,8 @@ void GameGraphics::render(GameManager gameManager, sf::RenderWindow& window, Gam
                     CELL_SIZE / playerSprite.getLocalBounds().height
                 );
                 window.draw(playerSprite);
-            }
-            else if (cellChar == character::ENEMY) {
+
+            } else if (cellChar == character::ENEMY) {
                 sf::Sprite enemySprite;
                 enemySprite.setTexture(enemyTexture);
                 enemySprite.setPosition(j * CELL_SIZE, i * CELL_SIZE);
@@ -259,6 +250,7 @@ void GameGraphics::render(GameManager gameManager, sf::RenderWindow& window, Gam
                     CELL_SIZE / enemySprite.getLocalBounds().height
                 );
                 window.draw(enemySprite);
+
             } else if (cellChar == character::ENEMY_TOWER){
                 sf::Sprite towerSprite;
                 towerSprite.setTexture(towerTexture);
@@ -268,6 +260,7 @@ void GameGraphics::render(GameManager gameManager, sf::RenderWindow& window, Gam
                     CELL_SIZE / towerSprite.getLocalBounds().height
                 );
                 window.draw(towerSprite);
+
             } else if (cellChar == character::TRAP){
                 sf::Sprite trapSprite;
                 trapSprite.setTexture(trapCellTexture);
@@ -285,7 +278,7 @@ void GameGraphics::render(GameManager gameManager, sf::RenderWindow& window, Gam
         window.draw(overlay);
     }
 
-     // Отрисовка фона для бара карточек
+    // Отрисовка фона для бара карточек
     sf::RectangleShape cardsBackground;
     cardsBackground.setSize(sf::Vector2f(window.getSize().x, 120));
     cardsBackground.setPosition(0, field.getWidth() * CELL_SIZE);
@@ -302,7 +295,7 @@ void GameGraphics::render(GameManager gameManager, sf::RenderWindow& window, Gam
         window.draw(description);
     }
 
-    //Темный фон для UI панели
+    // Отрисовка фона боковой панели
     int fieldWidth = width * CELL_SIZE;
     sf::RectangleShape uiBackground;
     uiBackground.setSize(sf::Vector2f(window.getSize().x - fieldWidth, window.getSize().y));
@@ -316,36 +309,34 @@ void GameGraphics::render(GameManager gameManager, sf::RenderWindow& window, Gam
     window.display();
 }
 
-void GameGraphics::updateRangeOverlay(GameManager gameManager, OverlayType currentOverlayType, bool showRangeOverlay, int selectedSpellCard) {
-    clearRangeOverlay();
+void GameGraphics::updateRangeOverlay(renderData renderParameters) {
+    rangeOverlay.clear();
 
-    if (!showRangeOverlay) return;
+    if (!renderParameters.showRangeOverlay) return;
 
-    Player player = gameManager.getPlayer();
+    Player player = renderParameters.player;
     auto [playerX, playerY] = player.getCoordinates();
-    Field field = gameManager.getField();
 
     sf::Color overlayColor;
 
-    switch (currentOverlayType) {
+    switch (renderParameters.currentOverlayType) {
         case OverlayType::SPELL_RANGE:
-            if (selectedSpellCard != -1 && player.hasSpell(selectedSpellCard)) {
-                spellType type = player.getSpellName(selectedSpellCard);
-                int range = 0;
-                if (type == spellType::DIRECT_DAMAGE_SPELL) range = 3;
-                else if (type == spellType::AREA_DAMAGE_SPELL) range = 4;
-                if (range > 0){
-                    showSpellRange(gameManager, range);
+            if (renderParameters.selectedSpellCard != -1 && player.hasSpell(renderParameters.selectedSpellCard)) {
+                spellType type = player.getSpellName(renderParameters.selectedSpellCard);
+                if (type == spellType::DIRECT_DAMAGE_SPELL){
+                    showSpellRange(renderParameters.player, renderParameters.field, 3);
+                } else if (type == spellType::AREA_DAMAGE_SPELL){
+                    showSpellRange(renderParameters.player, renderParameters.field, 4);
                 }
             }
             break;
 
         case OverlayType::TOWER_RANGE:
-            showTowerRange(gameManager);
+            showTowerRange(renderParameters.field, renderParameters.towerCoords);
             break;
 
         case OverlayType::COMBAT_RANGE:
-            showCombatRange(gameManager);
+            showCombatRange(renderParameters.player, renderParameters.field);
             break;
 
         case OverlayType::NONE:
@@ -353,10 +344,8 @@ void GameGraphics::updateRangeOverlay(GameManager gameManager, OverlayType curre
     }
 }
 
-void GameGraphics::showSpellRange(GameManager gameManager, int range) {
-    Player player = gameManager.getPlayer();
+void GameGraphics::showSpellRange(Player player, Field field, int range) {
     auto [playerX, playerY] = player.getCoordinates();
-    Field field = gameManager.getField();
 
     for (int i = 0; i < field.getLength(); ++i) {
         for (int j = 0; j < field.getWidth(); ++j) {
@@ -364,17 +353,16 @@ void GameGraphics::showSpellRange(GameManager gameManager, int range) {
             if (distance <= range && field.canMoveTo(i, j)) {
                 sf::RectangleShape overlay(sf::Vector2f(CELL_SIZE, CELL_SIZE));
                 overlay.setPosition(j * CELL_SIZE, i * CELL_SIZE);
-                overlay.setFillColor(sf::Color(128, 0, 128, 100)); // Полупрозрачный фиолетовый
+                overlay.setFillColor(sf::Color(128, 0, 128, 100));
                 rangeOverlay.push_back(overlay);
             }
         }
     }
 }
 
-void GameGraphics::showTowerRange(GameManager gameManager) {
-    auto [towerX, towerY] = gameManager.getTowerCoords();
-    Field field = gameManager.getField();
-    int towerRange = 3; // Радиус атаки башни
+void GameGraphics::showTowerRange(Field field, std::pair<int, int> towerCoords) {
+    auto [towerX, towerY] = towerCoords;
+    int towerRange = 3;
 
     for (int i = 0; i < field.getLength(); ++i) {
         for (int j = 0; j < field.getWidth(); ++j) {
@@ -382,17 +370,15 @@ void GameGraphics::showTowerRange(GameManager gameManager) {
             if (distance <= towerRange) {
                 sf::RectangleShape overlay(sf::Vector2f(CELL_SIZE, CELL_SIZE));
                 overlay.setPosition(j * CELL_SIZE, i * CELL_SIZE);
-                overlay.setFillColor(sf::Color(255, 0, 0, 80)); // Полупрозрачный красный
+                overlay.setFillColor(sf::Color(255, 0, 0, 80));
                 rangeOverlay.push_back(overlay);
             }
         }
     }
 }
 
-void GameGraphics::showCombatRange(GameManager gameManager) {
-    Player player = gameManager.getPlayer();
+void GameGraphics::showCombatRange(Player player, Field field) {
     auto [playerX, playerY] = player.getCoordinates();
-    Field field = gameManager.getField();
     int range = (player.getCombatType() == typeOfFight::CLOSE) ? 1 : 2;
 
     for (int i = 0; i < field.getLength(); ++i) {
@@ -401,39 +387,19 @@ void GameGraphics::showCombatRange(GameManager gameManager) {
             if (distance <= range) {
                 sf::RectangleShape overlay(sf::Vector2f(CELL_SIZE, CELL_SIZE));
                 overlay.setPosition(j * CELL_SIZE, i * CELL_SIZE);
-                overlay.setFillColor(sf::Color(0, 0, 255, 80)); // Полупрозрачный синий
+                overlay.setFillColor(sf::Color(0, 0, 255, 80));
                 rangeOverlay.push_back(overlay);
             }
         }
     }
 }
 
-void GameGraphics::clearRangeOverlay() {
-    rangeOverlay.clear();
-}
-
-void GameGraphics::initializeMenuUI() {
-    menuTitle.setFont(fontResult);
-    menuTitle.setString("CAT & MICE");
-    menuTitle.setCharacterSize(64);
-    menuTitle.setFillColor(sf::Color::Yellow);
-    menuTitle.setStyle(sf::Text::Bold);
-
-    levelCompleteTitle.setFont(fontResult);
-    levelCompleteTitle.setString("LEVEL COMPLETED!");
-    levelCompleteTitle.setCharacterSize(48);
-    levelCompleteTitle.setFillColor(sf::Color::Green);
-    levelCompleteTitle.setStyle(sf::Text::Bold);
-}
-
-void GameGraphics::renderMainMenu(sf::RenderWindow& window, GameStatus gameStatus) {
-    window.clear(sf::Color(30, 30, 50)); // Темно-синий фон
+void GameGraphics::renderMainMenu(sf::RenderWindow* wndw, GameStatus gameStatus) {
+    sf::RenderWindow& window = *wndw;
+    window.clear(sf::Color(30, 30, 50));
 
     sf::FloatRect titleBounds = menuTitle.getLocalBounds();
-    menuTitle.setPosition(
-        (window.getSize().x - titleBounds.width) / 2,
-        100
-    );
+    menuTitle.setPosition((window.getSize().x - titleBounds.width) / 2, 100);
     window.draw(menuTitle);
 
     menuButtons.clear();
@@ -490,32 +456,27 @@ void GameGraphics::renderMainMenu(sf::RenderWindow& window, GameStatus gameStatu
     window.display();
 }
 
-void GameGraphics::renderLevelComplete(sf::RenderWindow& window, const GameManager& gameManager, int goalScore) {
-    window.clear(sf::Color(30, 50, 30)); // Темно-зеленый фон
+void GameGraphics::renderLevelComplete(renderData renderParameters) {
+    sf::RenderWindow& window = *renderParameters.window;
+    window.clear(sf::Color(30, 50, 30));
 
-    Player player = gameManager.getPlayer();
+    Player player = renderParameters.player;
 
     sf::FloatRect titleBounds = levelCompleteTitle.getLocalBounds();
-    levelCompleteTitle.setPosition(
-        (window.getSize().x - titleBounds.width) / 2,
-        150
-    );
+    levelCompleteTitle.setPosition((window.getSize().x - titleBounds.width) / 2, 150);
     window.draw(levelCompleteTitle);
 
     sf::Text statsText;
     statsText.setFont(font);
     statsText.setString(
-        "Score: " + std::to_string(player.getScore()) + "/" + std::to_string(goalScore) + "\n" +
-        "Moves: " + std::to_string(gameManager.getMoves()) + "\n" +
+        "Score: " + std::to_string(player.getScore()) + "/" + std::to_string(renderParameters.LVLParameters.goalScore) + "\n" +
+        "Moves: " + std::to_string(renderParameters.currentMoves) + "\n" +
         "Coins: " + std::to_string(player.getCoins()) + "\n" +
         "Health: " + std::to_string(player.getHealth())
     );
     statsText.setCharacterSize(24);
     statsText.setFillColor(sf::Color::White);
-    statsText.setPosition(
-        (window.getSize().x - statsText.getLocalBounds().width) / 2,
-        250
-    );
+    statsText.setPosition((window.getSize().x - statsText.getLocalBounds().width) / 2, 250);
     window.draw(statsText);
 
     levelCompleteButtons.clear();
@@ -564,24 +525,20 @@ void GameGraphics::renderLevelComplete(sf::RenderWindow& window, const GameManag
     saveInfo.setCharacterSize(16);
     saveInfo.setFillColor(sf::Color::White);
     saveInfo.setPosition(
-        (window.getSize().x - saveInfo.getLocalBounds().width) / 2,
-        window.getSize().y - 50
-    );
+        (window.getSize().x - saveInfo.getLocalBounds().width) / 2, window.getSize().y - 50);
     window.draw(saveInfo);
-
     window.display();
 }
 
-void GameGraphics::renderGameOver(sf::RenderWindow& window, const GameManager& gameManager, LevelAttributes lvl) {
-    window.clear(sf::Color(50, 30, 30)); // Темно-красный фон
+void GameGraphics::renderGameOver(renderData renderParameters) {
+    sf::RenderWindow& window = *renderParameters.window;
+    window.clear(sf::Color(50, 30, 30));
 
-    Player player = gameManager.getPlayer();
+    Player player = renderParameters.player;
 
     sf::FloatRect gameOverBounds = gameOverText.getLocalBounds();
     gameOverText.setPosition(
-        (window.getSize().x - gameOverBounds.width) / 2,
-        150
-    );
+        (window.getSize().x - gameOverBounds.width) / 2, 150);
     window.draw(gameOverText);
 
     sf::Text reasonText;
@@ -593,25 +550,19 @@ void GameGraphics::renderGameOver(sf::RenderWindow& window, const GameManager& g
     if (!player.isAlive()) reason = "Player died!";
     reasonText.setString(reason);
 
-    reasonText.setPosition(
-        (window.getSize().x - reasonText.getLocalBounds().width) / 2,
-        250
-    );
+    reasonText.setPosition((window.getSize().x - reasonText.getLocalBounds().width) / 2, 250);
     window.draw(reasonText);
 
     sf::Text statsText;
     statsText.setFont(font);
     statsText.setString(
-        "Score: " + std::to_string(player.getScore()) + "/" + std::to_string(lvl.goalScore) + "\n" +
-        "Moves: " + std::to_string(gameManager.getMoves()) + "/" + std::to_string(lvl.goalMoves) + "\n" +
+        "Score: " + std::to_string(player.getScore()) + "/" + std::to_string(renderParameters.LVLParameters.goalScore) + "\n" +
+        "Moves: " + std::to_string(renderParameters.currentMoves) + "/" + std::to_string(renderParameters.LVLParameters.goalMoves) + "\n" +
         "Coins: " + std::to_string(player.getCoins())
     );
     statsText.setCharacterSize(20);
     statsText.setFillColor(sf::Color::White);
-    statsText.setPosition(
-        (window.getSize().x - statsText.getLocalBounds().width) / 2,
-        300
-    );
+    statsText.setPosition((window.getSize().x - statsText.getLocalBounds().width) / 2, 300);
     window.draw(statsText);
 
     gameOverButtons.clear();
@@ -651,31 +602,19 @@ void GameGraphics::renderGameOver(sf::RenderWindow& window, const GameManager& g
     saveInfo.setFillColor(sf::Color::White);
     saveInfo.setPosition(
         (window.getSize().x - saveInfo.getLocalBounds().width) / 2,
-        window.getSize().y - 50
-    );
+        window.getSize().y - 50);
     window.draw(saveInfo);
-
     window.display();
 }
 
-void GameGraphics::initializeImproveUI() {
-    improveTitle.setFont(fontResult);
-    improveTitle.setString("CHOOSE IMPROVEMENT");
-    improveTitle.setCharacterSize(48);
-    improveTitle.setFillColor(sf::Color::Yellow);
-    improveTitle.setStyle(sf::Text::Bold);
-}
+void GameGraphics::renderImprove(renderData renderParameters) {
+    sf::RenderWindow& window = *renderParameters.window;
+    window.clear(sf::Color(30, 30, 50));
 
-void GameGraphics::renderImprove(sf::RenderWindow& window, const GameManager& gameManager, int playerHP) {
-    window.clear(sf::Color(30, 30, 50)); // Темно-синий фон
-
-    Player player = gameManager.getPlayer();
+    Player player = renderParameters.player;
 
     sf::FloatRect titleBounds = improveTitle.getLocalBounds();
-    improveTitle.setPosition(
-        (window.getSize().x - titleBounds.width) / 2,
-        100
-    );
+    improveTitle.setPosition((window.getSize().x - titleBounds.width) / 2, 100);
     window.draw(improveTitle);
 
     improveButtons.clear();
@@ -754,10 +693,7 @@ void GameGraphics::renderImprove(sf::RenderWindow& window, const GameManager& ga
     instruction.setCharacterSize(18);
     instruction.setFillColor(sf::Color::Yellow);
     instruction.setPosition(
-        (window.getSize().x - instruction.getLocalBounds().width) / 2,
-        window.getSize().y - 80
-    );
+        (window.getSize().x - instruction.getLocalBounds().width) / 2, window.getSize().y - 80);
     window.draw(instruction);
-
     window.display();
 }

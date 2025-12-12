@@ -19,6 +19,7 @@ struct LevelAttributes{
     int enemyDamage = 1;
     int goalMoves = 30;
     int goalScore = 1;
+    int cellSize = 48;
 };
 
 class GameManager{

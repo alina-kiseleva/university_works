@@ -1,18 +1,7 @@
 #include "../include/game.hpp"
 #include <iostream>
 
-Game::Game() : gameStatus(GameStatus::MAIN_MENU), gameManager(GameManager()), 
-            GUI(gameManager.getField().getLength(), gameManager.getField().getWidth()){
-
-    Field field = gameManager.getField();
-    int length = field.getLength();
-    int width = field.getWidth();
-
-    windowWidth = width * CELL_SIZE + 200;
-    windowHeight = length * CELL_SIZE + 120;
-
-    window.create(sf::VideoMode(windowWidth, windowHeight), "Cat & mice");
-}
+Game::Game() : gameStatus(GameStatus::MAIN_MENU), gameManager(GameManager()){}
 
 void Game::start(){
     if (goToNextLVL){
@@ -24,32 +13,32 @@ void Game::start(){
     }
     gameManager.placeCharacter(character::ENEMY);
     gameManager.placeCharacter(character::ENEMY_TOWER);
-    GUI.updateCellSize(CELL_SIZE);
-    GUI.initializeSpellCards(gameManager.getPlayer(), gameManager.getField());
+    // GUI.updateCellSize(CELL_SIZE);
+    // GUI.initializeSpellCards(gameManager.getPlayer(), gameManager.getField());
 
-    while (window.isOpen()){
-        handleInput();
-        switch (gameStatus) {
-            case GameStatus::MAIN_MENU:
-                GUI.renderMainMenu(window, gameStatus);
-                break;
-            case GameStatus::IMPROVE:
-                GUI.renderImprove(window, gameManager, levelParameters.playerHP);
-                break;
-            case GameStatus::PLAYING:
-                GUI.updateCellSize(CELL_SIZE);
-                GUI.update(gameManager, selectedSpellCard, window, currentOverlayType, showRangeOverlay, levelParameters);
-                GUI.render(gameManager, window, gameStatus);
-                break;
-            case GameStatus::VICTORY:
-                GUI.renderLevelComplete(window, gameManager, levelParameters.goalScore);
-                break;
-            case GameStatus::DEFEAT:
-                GUI.renderGameOver(window, gameManager, levelParameters);
-                break;
-        }
-        sf::sleep(sf::milliseconds(16));
-    }
+    // while (window.isOpen()){
+    //     handleInput();
+    //     switch (gameStatus) {
+    //         case GameStatus::MAIN_MENU:
+    //             GUI.renderMainMenu(window, gameStatus);
+    //             break;
+    //         case GameStatus::IMPROVE:
+    //             GUI.renderImprove(window, gameManager, levelParameters.playerHP);
+    //             break;
+    //         case GameStatus::PLAYING:
+    //             GUI.updateCellSize(CELL_SIZE);
+    //             GUI.update(gameManager, selectedSpellCard, window, currentOverlayType, showRangeOverlay, levelParameters);
+    //             GUI.render(gameManager, window, gameStatus);
+    //             break;
+    //         case GameStatus::VICTORY:
+    //             GUI.renderLevelComplete(window, gameManager, levelParameters.goalScore);
+    //             break;
+    //         case GameStatus::DEFEAT:
+    //             GUI.renderGameOver(window, gameManager, levelParameters);
+    //             break;
+    //     }
+    //     sf::sleep(sf::milliseconds(16));
+    // }
 }
 
 void Game::checkGameState() {
@@ -64,153 +53,77 @@ void Game::checkGameState() {
     }
 }
 
-void Game::handleInput() {
-    sf::Event event;
-    while (window.pollEvent(event)) {
-        if (event.type == sf::Event::Closed) {
-            window.close();
-
-        } else if (event.type == sf::Event::MouseButtonPressed) {
-            if (event.mouseButton.button == sf::Mouse::Left){
-                if (gameStatus == GameStatus::PLAYING){
-                    handleMouseClick(event.mouseButton.x, event.mouseButton.y);
-                } else {
-                    handleMenuClick(event.mouseButton.x, event.mouseButton.y);
-                }
-            }
-
-        } else if (event.type == sf::Event::KeyPressed) {
-            if (event.key.code == sf::Keyboard::L){
-                saveGame();
-            }
-
-            if (gameStatus != GameStatus::PLAYING) {continue;} 
-
-            auto player = gameManager.getPlayer();
-            int movesBefore = gameManager.getMoves();
-            bool playerActed = 0;
-
-            switch (event.key.code) {
-                case sf::Keyboard::W:
-                case sf::Keyboard::A:
-                case sf::Keyboard::S:
-                case sf::Keyboard::D:
-                    gameManager.movePlayer(
-                        event.key.code == sf::Keyboard::W ? 'w' :
-                        event.key.code == sf::Keyboard::A ? 'a' :
-                        event.key.code == sf::Keyboard::S ? 's' : 'd'
-                    );
-                    if (movesBefore < gameManager.getMoves()){
-                        playerActed = 1;
-                    }
-                    break;
-                case sf::Keyboard::Q:
-                    playerActed = player.selectCombatMode(typeOfFight::FAR);
-                    if (playerActed){
-                        gameManager.setPlayer(player);
-                        gameManager.setMoves(gameManager.getMoves() + 1);
-                        showRangeOverlay = true;
-                        currentOverlayType = OverlayType::COMBAT_RANGE;
-                    }
-                    break;
-                case sf::Keyboard::E:
-                    playerActed = player.selectCombatMode(typeOfFight::CLOSE);
-                    if (playerActed){
-                        gameManager.setPlayer(player);
-                        gameManager.setMoves(gameManager.getMoves() + 1);
-                        showRangeOverlay = true;
-                        currentOverlayType = OverlayType::COMBAT_RANGE;
-                    }
-                    break;
-                case sf::Keyboard::F:
-                    gameManager.attackEnemy();
-                    gameManager.setMoves(gameManager.getMoves() + 1);
-                    playerActed = 1;
-                    break;
-                case sf::Keyboard::R:
-                    gameManager.buySpell(levelParameters.spellDamageKoef);
-                    if (movesBefore < gameManager.getMoves()){
-                        playerActed = 1;
-                    }
-                    break;
-                case sf::Keyboard::Num1:
-                    if (player.hasSpell(0)){
-                        selectedSpellCard = 0;
-                        waitingForTarget = true;
-                        showRangeOverlay = true;
-                        currentOverlayType = OverlayType::SPELL_RANGE;
-                    }
-                    break;    
-                case sf::Keyboard::Num2:
-                    if (player.hasSpell(1)){
-                        selectedSpellCard = 1;
-                        waitingForTarget = true;
-                        showRangeOverlay = true;
-                        currentOverlayType = OverlayType::SPELL_RANGE;
-                    }
-                    break;   
-                case sf::Keyboard::Num3:
-                    if (player.hasSpell(2)){
-                        selectedSpellCard = 2;
-                        waitingForTarget = true;
-                        showRangeOverlay = true;
-                        currentOverlayType = OverlayType::SPELL_RANGE;
-                    }
-                    break;
-                case sf::Keyboard::Num4:
-                    if (player.hasSpell(3)){
-                        selectedSpellCard = 3;
-                        waitingForTarget = true;
-                        showRangeOverlay = true;
-                        currentOverlayType = OverlayType::SPELL_RANGE;
-                    }
-                    break;
-                case sf::Keyboard::Escape:
-                    selectedSpellCard = -1;
-                    waitingForTarget = false;
-                    showRangeOverlay = false;
-                    currentOverlayType = OverlayType::NONE;
-                    break;
-                default:
-                    break;
-            }
-            if (playerActed){
-
-                gameManager.moveEnemy();
-                if (!player.getMoveAbility()){
-                    player.setMoveAbility(1);
-                    gameManager.setPlayer(player);
-                }
-
-                player = gameManager.getPlayer();
-                auto [towerX, towerY] = gameManager.getTowerCoords();
-                auto [playerX, playerY] = player.getCoordinates();
-                int distance = std::abs(towerX - playerX) + std::abs(towerY - playerY);
-
-                if (distance <= 3) { // Радиус атаки башни
-                    showRangeOverlay = true;
-                    currentOverlayType = OverlayType::TOWER_RANGE;
-                }
-
-                if (isTowerAttack && timeWithoutAttack > 0){
-                    --timeWithoutAttack;
-                } else {
-                    isTowerAttack = gameManager.towerAttack(player);
-                    gameManager.setPlayer(player);
-                    timeWithoutAttack = 2;
-                }
-            }
-            checkGameState();
-        }
-    }
+bool Game::movePlayer(char direction){
+    int movesBefore = gameManager.getMoves();
+    gameManager.movePlayer(direction);
+    return (movesBefore < gameManager.getMoves()) ? true : false;
 }
 
-void Game::handleMouseClick(int mouseX, int mouseY){
-    if (gameStatus != GameStatus::PLAYING || !waitingForTarget || selectedSpellCard == -1) return;
+bool Game::attack(){
+    gameManager.attackEnemy();
+    gameManager.setMoves(gameManager.getMoves() + 1);
+    return true;
+}
+
+bool Game::changeCombat(typeOfFight type){
+    Player player = gameManager.getPlayer();
+    bool success = player.selectCombatMode(type);
+    if (success){
+        gameManager.setPlayer(player);
+        gameManager.setMoves(gameManager.getMoves() + 1);
+    }
+    return success;
+}
+
+bool Game::buySpell(){
+    int movesBefore = gameManager.getMoves();
+    gameManager.buySpell(levelParameters.spellDamageKoef);
+    return (movesBefore < gameManager.getMoves()) ? true : false;
+}
+
+bool Game::hasSpell(int position){
+    Player player = gameManager.getPlayer();
+    return player.hasSpell(position);
+}
+
+bool Game::changesAfterMove(){
+    bool renderTowerOverlay = false;
+    Player player = gameManager.getPlayer();
+    gameManager.moveEnemy();
     
+    if (!player.getMoveAbility()){
+        if (!freezed){
+            player.setMoveAbility(1);
+            gameManager.setPlayer(player);
+            freezed = 1;
+        } else freezed -= 1;
+    }
+
+    player = gameManager.getPlayer();
+    auto [towerX, towerY] = gameManager.getTowerCoords();
+    auto [playerX, playerY] = player.getCoordinates();
+    int distance = std::abs(towerX - playerX) + std::abs(towerY - playerY);
+
+    if (distance <= 3) { // Радиус атаки башни
+        renderTowerOverlay = true;
+    }
+
+    if (isTowerAttack && timeWithoutAttack > 0){
+        --timeWithoutAttack;
+    } else {
+        isTowerAttack = gameManager.towerAttack(player);
+        gameManager.setPlayer(player);
+        timeWithoutAttack = 2;
+    }
+
+    return renderTowerOverlay;
+}
+
+bool Game::handleMouseClick(int mouseX, int mouseY, int selectedSpellCard){
     Field field = gameManager.getField();
     int length = field.getLength();
     int width = field.getWidth();
+    int CELL_SIZE = levelParameters.cellSize;
     
     if (mouseX < width * CELL_SIZE) {
         int cellX = mouseY / CELL_SIZE;
@@ -225,13 +138,13 @@ void Game::handleMouseClick(int mouseX, int mouseY){
                 gameManager.moveEnemy();
                 checkGameState();
             }
-            selectedSpellCard = -1;
-            waitingForTarget = false;
+            return true;
         }
     }
+    return false;
 }
 
-void Game::handleMenuClick(int mouseX, int mouseY){
+bool Game::handleMenuClick(int mouseX, int mouseY){
     int buttonWidth = 200;
     int buttonHeight = 50;
     int buttonSpacing = 20;
@@ -244,13 +157,14 @@ void Game::handleMenuClick(int mouseX, int mouseY){
             
             if (checkButton(mouseX, mouseY, startX, startY, buttonWidth, buttonHeight)) {
                 gameStatus = GameStatus::PLAYING;
+                levelParameters.cellSize = 48;
                 start();
             }
             else if (checkButton(mouseX, mouseY, startX, startY + buttonHeight + buttonSpacing, buttonWidth, buttonHeight)) {
                 loadGame();
             }
             else if (checkButton(mouseX, mouseY, startX, startY + 2 * (buttonHeight + buttonSpacing), buttonWidth, buttonHeight)) {
-                window.close();
+                return false;
             }
             break;
         }
@@ -307,12 +221,13 @@ void Game::handleMenuClick(int mouseX, int mouseY){
 
         }
     }
+    return true;
 }
 
 bool Game::checkButton(int mouseX, int mouseY, int btnX, int btnY, int btnWidth, int btnHeight) {
     return mouseX >= btnX && mouseX <= btnX + btnWidth &&
-           mouseY >= btnY && mouseY <= btnY + btnHeight;
-}
+           mouseY >= btnY && mouseY <= btnY + btnHeight;    
+    }
 
 void Game::saveGame(){
     SaveData data = gameManager.convertToSaveData();
@@ -322,7 +237,7 @@ void Game::saveGame(){
     data.goalMoves = levelParameters.goalMoves;
     data.goalScore = levelParameters.goalScore;
     data.playerImproveHP = levelParameters.playerImproveHP;
-    data.cellSize = CELL_SIZE;
+    data.cellSize = (levelParameters.enemyDamage % 2 == 0) ? 40 : 48;
     data.hash = saver.makeHash(data);
     if (!saver.saveToJson(data)){
         std::cout << "Failed to save game." << std::endl;
@@ -347,7 +262,7 @@ void Game::loadGame(){
         levelParameters.fieldLength = data.fieldLength;
         levelParameters.fieldWidth = data.fieldWidth;
 
-        CELL_SIZE = data.cellSize;
+        levelParameters.cellSize = data.cellSize;
         gameManager.unpackSaveData(data);
     }
 }
@@ -368,11 +283,11 @@ void Game::nextLevel(){
     if (levelParameters.fieldLength == 16 && levelParameters.fieldWidth == 18){
         levelParameters.fieldLength = 15;
         levelParameters.fieldWidth = 15;
-        CELL_SIZE = 48;
+        levelParameters.cellSize = 48;
     } else {
         levelParameters.fieldLength = 16;
         levelParameters.fieldWidth = 18;
-        CELL_SIZE = 40;
+        levelParameters.cellSize = 40;
     }
 
     levelParameters.enemyDamage += 1;
@@ -382,4 +297,16 @@ void Game::nextLevel(){
     levelParameters.enemyHP = 5 + (levelParameters.enemyDamage - 1);
 
     start();
+}
+
+GameStatus Game::getGameStatus() const{
+    return gameStatus;
+}
+
+LevelAttributes Game::getLVLParameters() const{
+    return levelParameters;
+}
+
+GameManager Game::getGameManager() const{
+    return gameManager;
 }
