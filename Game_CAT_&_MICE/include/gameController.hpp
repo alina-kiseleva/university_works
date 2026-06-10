@@ -24,7 +24,7 @@ public:
     GameController(Game& currentGame) : 
         inputProcessor(ProcessInput()), game(currentGame), gameStatus(GameStatus::MAIN_MENU),
         GUI(VisualDisplay<GameGraphics>()) {
-            window.create(sf::VideoMode(windowWidth, windowHeight), "Cat & mice");
+            window.create(sf::VideoMode(windowWidth, windowHeight), "Cat & Mice", sf::Style::Titlebar | sf::Style::Close);
             renderParameters.window = &window;
             renderParameters.towerCoords = game.getGameManager().getTowerCoords();
             updateRenderAttributes();

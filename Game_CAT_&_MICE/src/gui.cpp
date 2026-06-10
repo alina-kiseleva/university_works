@@ -64,14 +64,14 @@ void GameGraphics::render(renderData renderParameters, GameStatus gameStatus){
     initializeSpellCards(renderParameters);
     switch (gameStatus) {
         case GameStatus::MAIN_MENU:
-            renderMainMenu(renderParameters.window, gameStatus);
+            renderMainMenu(renderParameters.window);
             break;
         case GameStatus::IMPROVE:
             renderImprove(renderParameters);
             break;
         case GameStatus::PLAYING:
             update(renderParameters);
-            renderPlaying(renderParameters, gameStatus);
+            renderPlaying(renderParameters);
             break;
         case GameStatus::VICTORY:
             renderLevelComplete(renderParameters);
@@ -187,7 +187,7 @@ void GameGraphics::update(renderData renderParameters) {
         "E - Close Attack (Range: 1)\n"
         "F - Attack\n"
         "R - Buy spell\n"
-        "1-3 - Select spell\n"
+        "1-4 - Select spell\n"
         "Esc - Cancel spell\n"
         "Click - Select target\n\n"
         "GOAL:\n"
@@ -196,7 +196,7 @@ void GameGraphics::update(renderData renderParameters) {
     );
 }
 
-void GameGraphics::renderPlaying(renderData renderParameters, GameStatus gameStatus) {
+void GameGraphics::renderPlaying(renderData renderParameters) {
     sf::RenderWindow& window = *renderParameters.window;
     window.clear(sf::Color::Black);
 
@@ -394,7 +394,7 @@ void GameGraphics::showCombatRange(Player player, Field field) {
     }
 }
 
-void GameGraphics::renderMainMenu(sf::RenderWindow* wndw, GameStatus gameStatus) {
+void GameGraphics::renderMainMenu(sf::RenderWindow* wndw) {
     sf::RenderWindow& window = *wndw;
     window.clear(sf::Color(30, 30, 50));
 

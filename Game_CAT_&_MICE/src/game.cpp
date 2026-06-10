@@ -13,32 +13,6 @@ void Game::start(){
     }
     gameManager.placeCharacter(character::ENEMY);
     gameManager.placeCharacter(character::ENEMY_TOWER);
-    // GUI.updateCellSize(CELL_SIZE);
-    // GUI.initializeSpellCards(gameManager.getPlayer(), gameManager.getField());
-
-    // while (window.isOpen()){
-    //     handleInput();
-    //     switch (gameStatus) {
-    //         case GameStatus::MAIN_MENU:
-    //             GUI.renderMainMenu(window, gameStatus);
-    //             break;
-    //         case GameStatus::IMPROVE:
-    //             GUI.renderImprove(window, gameManager, levelParameters.playerHP);
-    //             break;
-    //         case GameStatus::PLAYING:
-    //             GUI.updateCellSize(CELL_SIZE);
-    //             GUI.update(gameManager, selectedSpellCard, window, currentOverlayType, showRangeOverlay, levelParameters);
-    //             GUI.render(gameManager, window, gameStatus);
-    //             break;
-    //         case GameStatus::VICTORY:
-    //             GUI.renderLevelComplete(window, gameManager, levelParameters.goalScore);
-    //             break;
-    //         case GameStatus::DEFEAT:
-    //             GUI.renderGameOver(window, gameManager, levelParameters);
-    //             break;
-    //     }
-    //     sf::sleep(sf::milliseconds(16));
-    // }
 }
 
 void Game::checkGameState() {

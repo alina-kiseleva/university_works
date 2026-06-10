@@ -48,8 +48,8 @@ public:
     void render(renderData renderParameters, GameStatus gameStatus);
     void initializeSpellCards(renderData renderParameters);
     void update(renderData renderParameters);
-    void renderPlaying(renderData renderParameters, GameStatus gameStatus);
-    void renderMainMenu(sf::RenderWindow* wndw, GameStatus gameStatus);
+    void renderPlaying(renderData renderParameters);
+    void renderMainMenu(sf::RenderWindow* wndw);
     void renderLevelComplete(renderData renderParameters);
     void renderGameOver(renderData renderParameters);
     void renderImprove(renderData renderParameters);
