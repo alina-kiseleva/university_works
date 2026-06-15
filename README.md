@@ -18,6 +18,37 @@
 
 Мануал по работе с утилитой и отчет с подробным описанием программы и примерами обработки изображений представлен в папке *cw2_adds*.
 
+<table align="center">
+  <tr>
+    <td align="center">
+      <img src="images/apple.png" width="280" alt="Original"/>
+      <br><b>Original</b>
+    </td>
+    <td align="center">
+      <img src="images/exchange.png" width="280" alt="Exchange peaces"/>
+      <br><b>Exchange peaces</b>
+    </td>
+    <td align="center">
+      <img src="images/square.png" width="280" alt="Draw square"/>
+      <br><b>Draw square</b>
+    </td>
+  </tr>
+   <tr>
+    <td align="center">
+      <img src="images/fibonacci.png" width="280" alt="Original"/>
+      <br><b>Original</b>
+    </td>
+    <td align="center">
+      <img src="images/diag_mirror.png" width="280" alt="Diagonal mirror"/>
+      <br><b>Diagonal mirror</b>
+    </td>
+    <td align="center">
+      <img src="images/contrast.png" width="280" alt="Contrast"/>
+      <br><b>Contrast</b>
+    </td>
+  </tr>
+</table>
+
 **#Игра "Cat & Mice" на языке С++ (Game)**
 
 Проект написан на языке C++, демонстрирует навыки создания классовой архитектуры в соответствии с принципами ООП, работы с файлами формата JSON, создания графического интерфейса.
@@ -34,6 +65,18 @@
 Детальное рассмотрение программной реализации представлено в отчетах в папке *game_reports*.
 
 Запуск: скачать архив из раздела ***Releases*** (только для Linux).
+
+<table align="center">
+  <tr>
+    <td align="center">
+      <img src="images/game_main_page.png" width="700" alt="Main page"/>
+      <br><b>Main page</b>
+    </td>
+    <td align="center">
+      <img src="images/gameplay.png" width="700" alt="Gameplay"/>
+      <br><b>Gameplay</b>
+    </td>
+</table>
 
 **#Программа на языке С++ для онлайн-заказов в кафе (Course work 3rd semester)**
 
