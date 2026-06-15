@@ -61,8 +61,8 @@ struct RGB{
 };
 
 struct point{
-        int x;
-        int y;
+    int x;
+    int y;
 };
 
 struct contrast_data{
@@ -71,27 +71,27 @@ struct contrast_data{
 };
 
 struct square_data{
-        struct point* left_up;
-        int side_size;
-        int thickness;
-        struct RGB* color;
-        bool fill;
-        struct RGB* fill_color;
+    struct point* left_up;
+    int side_size;
+    int thickness;
+    struct RGB* color;
+    bool fill;
+    struct RGB* fill_color;
 };
 
 struct exchange_data{
-        struct point* left_up;
-        struct point* right_down;
-        char* type;
+    struct point* left_up;
+    struct point* right_down;
+    char* type;
 };
 
 struct change_color{
-        struct RGB* new_color;
+    struct RGB* new_color;
 };
 
 struct o_rect_data{
 	struct point* left_up;
-        struct point* right_down;
+    struct point* right_down;
 	struct RGB* color;
 };
 
@@ -114,23 +114,23 @@ struct circle_data{
 
 struct mirror_data{
 	struct point* left_up;
-        struct point* right_down;
+    struct point* right_down;
 };
 
 struct options_flags{
 	unsigned iname_flag:1;
 
-        unsigned sqr_flag:1;
-        unsigned lft_up_flag:1;
-        unsigned sd_sz_flag:1;
-        unsigned thkns_flag:1;
-        unsigned clr_flag:1;
-        unsigned fill_flag:1;
-        unsigned fill_clr_flag:1;
-        unsigned exchg_flag:1;
-        unsigned rt_dwn_flag:1;
-        unsigned exchg_t_flag:1;
-        unsigned fq_clr_flag:1;
+    unsigned sqr_flag:1;
+    unsigned lft_up_flag:1;
+    unsigned sd_sz_flag:1;
+    unsigned thkns_flag:1;
+    unsigned clr_flag:1;
+    unsigned fill_flag:1;
+    unsigned fill_clr_flag:1;
+    unsigned exchg_flag:1;
+    unsigned rt_dwn_flag:1;
+    unsigned exchg_t_flag:1;
+    unsigned fq_clr_flag:1;
 	
 	unsigned contr_flag:1;
 	unsigned a_flag:1;
@@ -177,10 +177,10 @@ union get_flags{
 		unsigned step_bit:1;
 		unsigned axis_bit:1;
 		unsigned rhombus_bit:1;
-	        unsigned up_vrtx_bit:1;
-        	unsigned size_bit:1;
+	    unsigned up_vrtx_bit:1;
+        unsigned size_bit:1;
 		unsigned cp_bit:1;
-        	unsigned cir_clr_bit:1;
+        unsigned cir_clr_bit:1;
 		unsigned diag_mir_bit:1;
 		unsigned err_bit:1;
 	}bits;
@@ -210,23 +210,23 @@ int check_input_data(struct options_flags flags){
 		received_flags |= ((*bits >> i) & 1) << (25 - i);
 
 	if (((received_flags & expected_func_11) == expected_func_11) || ((received_flags & expected_func_12) == expected_func_12))
-	       	checker = 1;
+	    checker = 1;
 	else if ((received_flags & expected_func_2) == expected_func_2)
 		checker = 2;
 	else if ((received_flags & expected_func_3) == expected_func_3)
-    		checker = 3;
+    	checker = 3;
 	else if ((received_flags & expected_func_4) == expected_func_4)
 		checker = 4;
 	else if ((received_flags & expected_func_5) == expected_func_5)
-                checker = 5;
+        checker = 5;
 	else if ((received_flags & expected_func_6) == expected_func_6)
-                checker = 6;
+        checker = 6;
 	else if ((received_flags & expected_func_7) == expected_func_7)
-                checker = 7;
+        checker = 7;
 	else if ((received_flags & expected_func_8) == expected_func_8)
-                checker = 8;
+        checker = 8;
 	else if ((received_flags & expected_func_9) == expected_func_9)
-                checker = 9;
+        checker = 9;
 
 	return checker;
 }
@@ -353,15 +353,15 @@ void write_image(struct Png* image, char* filename, enum error_types* err){
 		if (image->png_ptr && image->info_ptr){
 			png_init_io(image->png_ptr, file);
 			png_set_IHDR(image->png_ptr, 
-					image->info_ptr, 
-					image->width, 
-					image->height, 
-					image->bit_depth, 
-					image->color_type, 
-					PNG_INTERLACE_NONE, 
-					PNG_COMPRESSION_TYPE_BASE, 
-					PNG_FILTER_TYPE_BASE);
-     			png_write_info(image->png_ptr, image->info_ptr);
+			image->info_ptr, 
+			image->width, 
+			image->height, 
+			image->bit_depth, 
+			image->color_type, 
+			PNG_INTERLACE_NONE, 
+			PNG_COMPRESSION_TYPE_BASE, 
+			PNG_FILTER_TYPE_BASE);
+     		png_write_info(image->png_ptr, image->info_ptr);
 			png_write_image(image->png_ptr, image->row_pointers);
 			png_write_end(image->png_ptr, NULL);
 
@@ -387,29 +387,29 @@ void draw_line(int x, int y, int side, int thick, struct RGB* color, struct Png*
 	for (int i=y; i<y+thick; i++){
                 png_byte* row = image->row_pointers[i];
                 for (int j=x; j<x+side; j++){
-                        png_byte* pixel = &(row[j*3]);
+                    png_byte* pixel = &(row[j*3]);
 			
 			if ((j >= 0 && j < image->width) && (i >= 0 && i < image->height)){  
-                        	pixel[0] = color->R;
-                        	pixel[1] = color->G;
-                        	pixel[2] = color->B;
+                pixel[0] = color->R;
+                pixel[1] = color->G;
+                pixel[2] = color->B;
 			}
-                }
+        }
 	}	
 }
 
 void fill_square(int x, int y, int side_x, int side_y, struct RGB* fill_color, struct Png* image){
 	for (int i=y; i<y+side_y; i++){
 		png_byte* row = image->row_pointers[i];
-                for (int j=x; j<x+side_x; j++){
-                        png_byte* pixel = &(row[j*3]);
+        for (int j=x; j<x+side_x; j++){
+            png_byte* pixel = &(row[j*3]);
         		
 			if ((j >= 0 && j < image->width) && (i >= 0 && i < image->height)){
-	                        pixel[0] = fill_color->R;
-        	                pixel[1] = fill_color->G;
-                	        pixel[2] = fill_color->B;
+	            pixel[0] = fill_color->R;
+        	    pixel[1] = fill_color->G;
+                pixel[2] = fill_color->B;
 			}
-                }
+        }
 	}
 }
 
@@ -459,8 +459,8 @@ void paste_piece(int x, int y, int len_x, int len_y, png_bytep* piece, struct Pn
 			
 			if ((x+j >= 0 && x+j < image->width) && (y+i >= 0 && y+i < image->height)){
 				dst_pix[0] = src_pix[0];
-                        	dst_pix[1] = src_pix[1];
-                        	dst_pix[2] = src_pix[2];
+                dst_pix[1] = src_pix[1];
+                dst_pix[2] = src_pix[2];
 			}	
 		}
 	}
@@ -486,13 +486,13 @@ void exchange_places(struct exchange_data* space, struct Png* image, enum error_
 	int height_rec = rd_y-lu_y;
 
 	png_bytep* left_up_piece = (png_bytep*)calloc(height_rec/2, sizeof(png_bytep));
-        png_bytep* right_up_piece = (png_bytep*)calloc(height_rec/2, sizeof(png_bytep));
+    png_bytep* right_up_piece = (png_bytep*)calloc(height_rec/2, sizeof(png_bytep));
 	png_bytep* left_down_piece = (png_bytep*)calloc(height_rec/2, sizeof(png_bytep));
 	png_bytep* right_down_piece = (png_bytep*)calloc(height_rec/2, sizeof(png_bytep));
 	
 	if (left_up_piece && right_up_piece && left_down_piece && right_down_piece){
 		get_piece(width_rec/2, height_rec/2, lu_x, lu_y, left_up_piece, image, err);
-        	get_piece(width_rec/2, height_rec/2, lu_x + width_rec/2, lu_y, right_up_piece, image, err);
+        get_piece(width_rec/2, height_rec/2, lu_x + width_rec/2, lu_y, right_up_piece, image, err);
 		get_piece(width_rec/2, height_rec/2, lu_x, lu_y + height_rec/2, left_down_piece, image, err);	
 		get_piece(width_rec/2, height_rec/2, lu_x + width_rec/2, lu_y + height_rec/2, right_down_piece, image, err);
 
@@ -504,24 +504,24 @@ void exchange_places(struct exchange_data* space, struct Png* image, enum error_
 	
 		} else if (!strcmp(space->type, "counterclockwise")){
 			paste_piece(lu_x, lu_y, width_rec/2, height_rec/2, right_up_piece, image);
-                	paste_piece(lu_x + width_rec/2, lu_y, width_rec/2, height_rec/2, right_down_piece, image);
-	                paste_piece(lu_x, lu_y + height_rec/2, width_rec/2, height_rec/2, left_up_piece, image);
-        	        paste_piece(lu_x + width_rec/2, lu_y + height_rec/2, width_rec/2, height_rec/2, left_down_piece, image);
+            paste_piece(lu_x + width_rec/2, lu_y, width_rec/2, height_rec/2, right_down_piece, image);
+	        paste_piece(lu_x, lu_y + height_rec/2, width_rec/2, height_rec/2, left_up_piece, image);
+        	paste_piece(lu_x + width_rec/2, lu_y + height_rec/2, width_rec/2, height_rec/2, left_down_piece, image);
 
 		} else if (!strcmp(space->type, "diagonals")){
 			paste_piece(lu_x, lu_y, width_rec/2, height_rec/2, right_down_piece, image);
-                	paste_piece(lu_x + width_rec/2, lu_y, width_rec/2, height_rec/2, left_down_piece, image);
-	                paste_piece(lu_x, lu_y + height_rec/2, width_rec/2, height_rec/2, right_up_piece, image);
-        	        paste_piece(lu_x + width_rec/2, lu_y + height_rec/2, width_rec/2, height_rec/2, left_up_piece, image);
+            paste_piece(lu_x + width_rec/2, lu_y, width_rec/2, height_rec/2, left_down_piece, image);
+	        paste_piece(lu_x, lu_y + height_rec/2, width_rec/2, height_rec/2, right_up_piece, image);
+        	paste_piece(lu_x + width_rec/2, lu_y + height_rec/2, width_rec/2, height_rec/2, left_up_piece, image);
 
 		}
 
 		for (int i=0; i<height_rec/2; i++){
-                        free(left_up_piece[i]);
-                        free(right_up_piece[i]);
-                        free(left_down_piece[i]);
-                        free(right_down_piece[i]);
-                }
+            free(left_up_piece[i]);
+            free(right_up_piece[i]);
+            free(left_down_piece[i]);
+            free(right_down_piece[i]);
+        }
 
 	} else *err = ERR_MEM;  
 	
@@ -566,7 +566,7 @@ void replace_freq_color(struct change_color* my_colors, struct Png* image, enum 
 
 		for (int y=0; y < image->height; y++){
 			png_byte* line = image->row_pointers[y];
-               		for (int x=0; x < image->width; x++){
+            for (int x=0; x < image->width; x++){
 				png_byte* cur_pixel = &(line[x*3]);
 
 				if (cur_pixel[0] == freq_color->R && cur_pixel[1] == freq_color->G && cur_pixel[2] == freq_color->B){
@@ -600,12 +600,12 @@ void make_contrast(struct contrast_data* c_data, struct Png* image){
 			else pix[0] = 255;
 
 			if (green <= 255)
-                                pix[1] = green;
-                        else pix[1] = 255;
+                pix[1] = green;
+            else pix[1] = 255;
 			
 			if (blue <= 255)
-                                pix[2] = blue;
-                        else pix[2] = 255;
+                pix[2] = blue;
+            else pix[2] = 255;
 		}
 	}
 }
@@ -642,8 +642,8 @@ void cyclic_shift(struct shift_data* shift, struct Png* image){
 			int new_y = y+shift->step;
 	
 			if (strcmp(shift->axis, "y") == 0 || strcmp(shift->axis, "xy") == 0){
-                	        if (new_y >= image->height)
-                        	        new_y = (y+shift->step) - image->height;
+                if (new_y >= image->height)
+                    new_y = (y+shift->step) - image->height;
 				dst_row = new_image[new_y];
 			}
 
@@ -696,9 +696,9 @@ void draw_rhombus(struct rhombus_data* rhomb, struct Png* image){
 				for (int x=x_start; x<=x_end; x++){
 					png_byte* pix = &(image->row_pointers[y][x*3]);
 					pix[0] = rhomb->fill_color->R;
-                                        pix[1] = rhomb->fill_color->G;
-                                        pix[2] = rhomb->fill_color->B;
-                                }
+                    pix[1] = rhomb->fill_color->G;
+                    pix[2] = rhomb->fill_color->B;
+                }
 			}
 		}
 	}
@@ -765,10 +765,10 @@ void diag_mirror(struct mirror_data* area, struct Png* image){
 			int y = area->left_up->y + j;
 
 			int mirror_x = area->left_up->x + j;
-                        int mirror_y = area->left_up->y + i;
+            int mirror_y = area->left_up->y + i;
 
 			if (x>=0 && x<width && y>=0 && y<height && mirror_x>=0 && mirror_x<width && mirror_y>=0 && mirror_y<height)
-				swap_pixels(&(image->row_pointers[height-10y][x*3]), &(image->row_pointers[height-1-mirror_y][mirror_x*3]));
+				swap_pixels(&(image->row_pointers[y][x*3]), &(image->row_pointers[mirror_y][mirror_x*3]));
 		}
 	}
 }
@@ -852,9 +852,9 @@ int main(int argc, char** argv){
 		switch(opt){
 			case 'i':
 				if (optind < argc && argv[optind][0] != '-'){
-                                        printf("Опция --input принимает только один аргумент.\n%s и следующие аргументы будут проигнорированы.\n", argv[optind]);
-                                        err = ERR_OPT;
-                                } else {
+                    printf("Опция --input принимает только один аргумент.\n%s и следующие аргументы будут проигнорированы.\n", argv[optind]);
+                    err = ERR_OPT;
+                } else {
 					img_iname = realloc(img_iname, strlen(optarg));
 					
 					if (img_iname){
@@ -872,9 +872,9 @@ int main(int argc, char** argv){
 				break;
 			case 'o':
 				 if ((optind < argc && argv[optind][0] != '-') && optind != argc-1){
-                                        printf("Опция --output принимает только один аргумент.\n%s и следующие аргументы будут проигнорированы.\n", argv[optind]);
-                                        err = ERR_OPT;
-                                } else {
+                    printf("Опция --output принимает только один аргумент.\n%s и следующие аргументы будут проигнорированы.\n", argv[optind]);
+                    err = ERR_OPT;
+                } else {
 					img_oname = realloc(img_oname, strlen(optarg)+1);
 	
 					if (img_oname){
@@ -891,7 +891,7 @@ int main(int argc, char** argv){
 				}
                                 break;
 			case 'h':
-			       	if ((optind < argc && argv[optind][0] == '-') || optind == argc || optind == argc-1){
+			    if ((optind < argc && argv[optind][0] == '-') || optind == argc || optind == argc-1){
 					help_opt = 1; 
 					printf("Course work for option 4.16, created by Alina Kiseleva\n");
 					print_help();
@@ -904,142 +904,142 @@ int main(int argc, char** argv){
 				if (my_contrast)
 					flags.contr_flag = 1;
 				if ((optind < argc && argv[optind][0] != '-') && optind != argc-1){
-                                        printf("Опция --contrast не принимает аргументов.\n%s и последующие аргументы будут проигнорированы.\n", argv[optind]);
-                                        err = ERR_OPT;
-                                }
-                                break;
+                    printf("Опция --contrast не принимает аргументов.\n%s и последующие аргументы будут проигнорированы.\n", argv[optind]);
+                    err = ERR_OPT;
+                }
+                break;
 			case 'O':
 				if (my_rect)
 					flags.o_rect_flag = 1;
 				if ((optind < argc && argv[optind][0] != '-') && optind != argc-1){
-                                        printf("Опция --outside_rect не принимает аргументов.\n%s и последующие аргументы будут проигнорированы.\n", argv[optind]);
-                                        err = ERR_OPT;
-                                }
-                                break;
+                    printf("Опция --outside_rect не принимает аргументов.\n%s и последующие аргументы будут проигнорированы.\n", argv[optind]);
+                    err = ERR_OPT;
+                }
+                break;
 			case 'H':
 				if (my_shift)
 					flags.shift_flag = 1;
 				if ((optind < argc && argv[optind][0] != '-') && optind != argc-1){
-                                        printf("Опция --shift не принимает аргументов.\n%s и последующие аргументы будут проигнорированы.\n", argv[optind]);
-                                        err = ERR_OPT;
-                                }
-                                break;
+                    printf("Опция --shift не принимает аргументов.\n%s и последующие аргументы будут проигнорированы.\n", argv[optind]);
+                    err = ERR_OPT;
+                }
+                break;
 			case 'U':
 				if (my_rhomb)
 					flags.rhombus_flag = 1;
 				if ((optind < argc && argv[optind][0] != '-') && optind != argc-1){
-                                        printf("Опция --square_rhombus не принимает аргументов.\n%s и последующие аргументы будут проигнорированы.\n", argv[optind]);
-                                        err = ERR_OPT;
-                                }
-                                break;
+                    printf("Опция --square_rhombus не принимает аргументов.\n%s и последующие аргументы будут проигнорированы.\n", argv[optind]);
+                    err = ERR_OPT;
+                }
+                break;
 			case 'I':
 				if (my_cir_p)
 					flags.cp_flag = 1;
 				if ((optind < argc && argv[optind][0] != '-') && optind != argc-1){
-                                        printf("Опция --circle_pixel не принимает аргументов.\n%s и последующие аргументы будут проигнорированы.\n", argv[optind]);
-                                        err = ERR_OPT;
-                                }
-                                break;
+                    printf("Опция --circle_pixel не принимает аргументов.\n%s и последующие аргументы будут проигнорированы.\n", argv[optind]);
+                    err = ERR_OPT;
+                }
+                break;
 			case 'M':
-                                if (my_mirror)
-                                        flags.diag_mir_flag = 1;
-                                if ((optind < argc && argv[optind][0] != '-') && optind != argc-1){
-                                        printf("Опция --diag_mirror не принимает аргументов.\n%s и последующие аргументы будут проигнорированы.\n", argv[optind]);
-                                        err = ERR_OPT;
-                                }
-                                break;
+                if (my_mirror)
+                    flags.diag_mir_flag = 1;
+                if ((optind < argc && argv[optind][0] != '-') && optind != argc-1){
+                    printf("Опция --diag_mirror не принимает аргументов.\n%s и последующие аргументы будут проигнорированы.\n", argv[optind]);
+                    err = ERR_OPT;
+                }
+                break;
 			case 'S': 
 				if (my_square)
 					flags.sqr_flag = 1;
 				if ((optind < argc && argv[optind][0] != '-') && optind != argc-1){
-                                        printf("Опция --square не принимает аргументов.\n%s и последующие аргументы будут проигнорированы.\n", argv[optind]);
-                                        err = ERR_OPT;
-                                }
+                    printf("Опция --square не принимает аргументов.\n%s и последующие аргументы будут проигнорированы.\n", argv[optind]);
+                    err = ERR_OPT;
+                }
 				break;
 			case 'E':
 				if (exchange_data)
 					flags.exchg_flag = 1;
 				if ((optind < argc && argv[optind][0] != '-') && optind != argc-1){
-                                        printf("Опция --exchange не принимает аргументов.\n%s и последующие аргументы будут проигнорированы.\n", argv[optind]);
-                                        err = ERR_OPT;
-                                }
+                    printf("Опция --exchange не принимает аргументов.\n%s и последующие аргументы будут проигнорированы.\n", argv[optind]);
+                    err = ERR_OPT;
+                }
 				break;
 			case 'F':
 				if (my_freq_color)
 					flags.fq_clr_flag = 1;
 				if ((optind < argc && argv[optind][0] != '-') && optind != argc-1){
-                                        printf("Опция --freq_color не принимает аргументов.\n%s и последующие аргументы будут проигнорированы.\n", argv[optind]);
+                    printf("Опция --freq_color не принимает аргументов.\n%s и последующие аргументы будут проигнорированы.\n", argv[optind]);
 					err = ERR_OPT;
 				}
 				break;
 			case 'e':
-                                if ((optind < argc && argv[optind][0] != '-') && optind != argc-1){
-                                        printf("Опция --circle_color принимает только один аргумент.\n%s и следующие аргументы будут проигнорированы.\n", argv[optind]);
-                                        err = ERR_OPT;
-                                } else {
-                                        if (circle_color){
-                                                int checker = sscanf(optarg, "%d.%d.%d", &circle_color->R, &circle_color->G, &circle_color->B);
-                                                if ((checker == 3) && check_color(circle_color->R, circle_color->G, circle_color->B)){
-                                                        if (my_cir_p){
-                                                                my_cir_p->circle_color = circle_color;
-                                                                flags.cir_clr_flag = 1;
-                                                        } else if (!my_cir_p){
-                                                                printf("Ошибка памяти\n");
-                                                                err = ERR_MEM;
-                                                        }
-                                                } else {
-                                                        printf("Цвет заливки задан неверно\n");
-                                                        err = ERR_COLOR;
-                                                }
-                                        } else {
-                                                printf("Ошибка памяти\n");
-                                                err = ERR_MEM;
-                                        }
-                                }
-                                break;
+                if ((optind < argc && argv[optind][0] != '-') && optind != argc-1){
+                    printf("Опция --circle_color принимает только один аргумент.\n%s и следующие аргументы будут проигнорированы.\n", argv[optind]);
+                    err = ERR_OPT;
+                } else {
+                    if (circle_color){
+                        int checker = sscanf(optarg, "%d.%d.%d", &circle_color->R, &circle_color->G, &circle_color->B);
+	                    if ((checker == 3) && check_color(circle_color->R, circle_color->G, circle_color->B)){
+	                        if (my_cir_p){
+	                            my_cir_p->circle_color = circle_color;
+	                            flags.cir_clr_flag = 1;
+	                        } else if (!my_cir_p){
+	                            printf("Ошибка памяти\n");
+	                            err = ERR_MEM;
+	                        }
+	                    } else {
+	                		printf("Цвет заливки задан неверно\n");
+	                        err = ERR_COLOR;
+	                    }
+                	} else {
+                        printf("Ошибка памяти\n");
+                        err = ERR_MEM;
+                    }
+                }
+                break;
 			case 'v':
 				if ((optind < argc && argv[optind][0] != '-') && optind != argc-1){
-                                        printf("Опция --upper_vertex принимает только один аргумент.\n%s и следующие аргументы будут проигнорированы.\n", argv[optind]);
-                                        err = ERR_OPT;
-                                } else {
-                                        if (l_point && my_rhomb){
-                                                checker = sscanf(optarg, "%d.%d", &l_point->x, &l_point->y);
-                                                if (checker == 2){
-                                                        flags.up_vrtx_flag = 1;
+                    printf("Опция --upper_vertex принимает только один аргумент.\n%s и следующие аргументы будут проигнорированы.\n", argv[optind]);
+                    err = ERR_OPT;
+                } else {
+                    if (l_point && my_rhomb){
+                        checker = sscanf(optarg, "%d.%d", &l_point->x, &l_point->y);
+                        if (checker == 2){
+                            flags.up_vrtx_flag = 1;
 							my_rhomb->upper_vertex = l_point;
 						} else {
-                                                        printf("Координаты верхней вершины ромба заданы неверно.\n");
-                                                        err = ERR_COORDS;
-                                                }
-                                        } else err = ERR_MEM;
-                                }
-                                break;
+                            printf("Координаты верхней вершины ромба заданы неверно.\n");
+                            err = ERR_COORDS;
+                        }
+                    } else err = ERR_MEM;
+                }
+                break;
 			case 'z':
 				if ((optind < argc && argv[optind][0] != '-') && optind != argc-1){
-                                        printf("Опция --size принимает только один аргумент.\n%s и следующие аргументы будут проигнорированы.\n", argv[optind]);
-                                        err = ERR_OPT;
-                                } else {
-                                        if (my_rhomb && my_cir_p){
-                                                checker = sscanf(optarg, "%d", &my_rhomb->size);
+                    printf("Опция --size принимает только один аргумент.\n%s и следующие аргументы будут проигнорированы.\n", argv[optind]);
+                    err = ERR_OPT;
+                } else {
+                    if (my_rhomb && my_cir_p){
+                        checker = sscanf(optarg, "%d", &my_rhomb->size);
 						checker *= sscanf(optarg, "%d", &my_cir_p->size);
-                                                if (checker == 1 && my_rhomb->size > 0 && my_cir_p->size > 0){
-                                                        flags.size_flag = 1;
-                                                } else {
-                                                        printf("Cторона задана неверно\n");
-                                                        err = ERR_OPT;
-                                                }
-                                        } else err = ERR_MEM;
-                                }
-                                break;
+                        if (checker == 1 && my_rhomb->size > 0 && my_cir_p->size > 0){
+                            flags.size_flag = 1;
+                        } else {
+                            printf("Cторона задана неверно\n");
+                            err = ERR_OPT;
+                        }
+                    } else err = ERR_MEM;
+                }
+                break;
 			case 'p':
 				if ((optind < argc && argv[optind][0] != '-') && optind != argc-1){
-                                        printf("Опция --step принимает только один аргумент.\n%s и следующие аргументы будут проигнорированы.\n", argv[optind]);
-                                        err = ERR_OPT;
-                                } else {
+                    printf("Опция --step принимает только один аргумент.\n%s и следующие аргументы будут проигнорированы.\n", argv[optind]);
+                    err = ERR_OPT;
+                } else {
 					if (my_shift){
 						checker = sscanf(optarg, "%d", &my_shift->step);
-                                                if (checker == 1 && my_shift->step > 0)
-                                                        flags.step_flag = 1;
+                        if (checker == 1 && my_shift->step > 0)
+                            flags.step_flag = 1;
 						else {
 							printf("Значение циклического сдвига задано неверно.\n");
 							err = ERR_COORDS;
@@ -1049,26 +1049,26 @@ int main(int argc, char** argv){
 				break;
 			case 'x':
 				if ((optind < argc && argv[optind][0] != '-') && optind != argc-1){
-                                        printf("Опция --axis принимает только один аргумент.\n%s и следующие аргументы будут проигнорированы.\n", argv[optind]);
-                                        err = ERR_OPT;
-                                } else {
-                                        if (my_shift){
-                                                checker = sscanf(optarg, "%s", axis);
-                                                if (checker == 1){
+                    printf("Опция --axis принимает только один аргумент.\n%s и следующие аргументы будут проигнорированы.\n", argv[optind]);
+                    err = ERR_OPT;
+                } else {
+                    if (my_shift){
+                        checker = sscanf(optarg, "%s", axis);
+                        if (checker == 1){
 							my_shift->axis = axis;
-                                                        flags.axis_flag = 1;
+                            flags.axis_flag = 1;
 						} else {
-                                                        printf("Значение оси сдвига задано неверно.\n");
-                                                        err = ERR_COORDS;
-                                                }
-                                        } else err = ERR_MEM;
-                                }
-                                break;
+                            printf("Значение оси сдвига задано неверно.\n");
+                            err = ERR_COORDS;
+                        }
+                    } else err = ERR_MEM;
+                }
+                break;
 			case 'a':
 				if ((optind < argc && argv[optind][0] != '-') && optind != argc-1){
-                                        printf("Опция --alpha принимает только один аргумент.\n%s и следующие аргументы будут проигнорированы.\n", argv[optind]);
-                                        err = ERR_OPT;
-                                } else {
+                    printf("Опция --alpha принимает только один аргумент.\n%s и следующие аргументы будут проигнорированы.\n", argv[optind]);
+                    err = ERR_OPT;
+                } else {
 					if (my_contrast){
 						checker = sscanf(optarg, "%lf", &my_contrast->alpha);
 						if (checker == 1 && my_contrast->alpha > 0)
@@ -1082,25 +1082,25 @@ int main(int argc, char** argv){
 				break;
 			case 'b':
 				if ((optind < argc && argv[optind][0] != '-') && optind != argc-1){
-                                        printf("Опция --beta принимает только один аргумент.\n%s и следующие аргументы будут проигнорированы.\n", argv[optind]);
-                                        err = ERR_OPT;
-                                } else {
+                    printf("Опция --beta принимает только один аргумент.\n%s и следующие аргументы будут проигнорированы.\n", argv[optind]);
+                    err = ERR_OPT;
+                } else {
 					if (my_contrast){
-                                        	checker = sscanf(optarg, "%d", &my_contrast->beta);
-                                        	if (checker == 1)
-                                                	flags.b_flag = 1;
-                                        	else {
-                                                	printf("Сдвиг контрастности beta задан неверно\n");
-                                                	err = ERR_COORDS;
-                                        	}
+                        checker = sscanf(optarg, "%d", &my_contrast->beta);
+                        if (checker == 1)
+                            flags.b_flag = 1;
+                        else {
+                            printf("Сдвиг контрастности beta задан неверно\n");
+                            err = ERR_COORDS;
+                        }
 					} else err = ERR_MEM;
-                                }
-                                break;
+                }
+                break;
 			case 'l':
-			        if ((optind < argc && argv[optind][0] != '-') && optind != argc-1){
-                                        printf("Опция --left_up принимает только один аргумент.\n%s и следующие аргументы будут проигнорированы.\n", argv[optind]);
-                                        err = ERR_OPT;
-                                } else {
+			    if ((optind < argc && argv[optind][0] != '-') && optind != argc-1){
+                    printf("Опция --left_up принимает только один аргумент.\n%s и следующие аргументы будут проигнорированы.\n", argv[optind]);
+                    err = ERR_OPT;
+                } else {
 					if (l_point && my_square && exchange_data && my_rect && my_mirror){
 						checker = sscanf(optarg, "%d.%d", &l_point->x, &l_point->y);
 						if (checker == 2){
@@ -1121,9 +1121,9 @@ int main(int argc, char** argv){
 				break;
 			case 's':
 				if ((optind < argc && argv[optind][0] != '-') && optind != argc-1){
-                                        printf("Опция --side_size принимает только один аргумент.\n%s и следующие аргументы будут проигнорированы.\n", argv[optind]);
-                                        err = ERR_OPT;
-                                } else {
+                    printf("Опция --side_size принимает только один аргумент.\n%s и следующие аргументы будут проигнорированы.\n", argv[optind]);
+                    err = ERR_OPT;
+                } else {
 					if (my_square){
 						checker = sscanf(optarg, "%d", &my_square->side_size);
 						if (checker == 1 && my_square->side_size > 0){
@@ -1140,9 +1140,9 @@ int main(int argc, char** argv){
 				break;
 			case 't':
 				 if ((optind < argc && argv[optind][0] != '-') && optind != argc-1){
-                                        printf("Опция --thickness принимает только один аргумент.\n%s и следующие аргументы будут проигнорированы.\n", argv[optind]);
-                                        err = ERR_OPT;
-                                } else {
+                    printf("Опция --thickness принимает только один аргумент.\n%s и следующие аргументы будут проигнорированы.\n", argv[optind]);
+                    err = ERR_OPT;
+                } else {
 					if (my_square){
 						checker = sscanf(optarg, "%d", &my_square->thickness);
 						if (checker == 1 && my_square->thickness >= 0){
@@ -1154,14 +1154,14 @@ int main(int argc, char** argv){
 					} else {
 						printf("Ошибка памяти\n");
 						err = ERR_MEM;
-        	                        }
+        	        }
 				}
-                                break;
+                break;
 			case 'C':
 				 if ((optind < argc && argv[optind][0] != '-') && optind != argc-1){
-                                        printf("Опция --color принимает только один аргумент.\n%s и следующие аргументы будут проигнорированы.\n", argv[optind]);
-                                        err = ERR_OPT;
-                                } else {
+                    printf("Опция --color принимает только один аргумент.\n%s и следующие аргументы будут проигнорированы.\n", argv[optind]);
+                    err = ERR_OPT;
+                } else {
 					if (color && my_square && my_freq_color && my_rect && my_cir_p){
 						checker = sscanf(optarg, "%d.%d.%d", &color->R, &color->G, &color->B);
 						if ((checker == 3) && check_color(color->R, color->G, color->B)){
@@ -1179,21 +1179,21 @@ int main(int argc, char** argv){
 						err = ERR_MEM;
 					}
 				}
-                                break;
+                break;
 			case 'f':
 				if (my_square){
 					flags.fill_flag = 1;
 					my_square->fill = (bool)1;
 				} else {
 					printf("Ошибка памяти\n");
-                                        err = ERR_MEM;
+                    err = ERR_MEM;
 				}
 				break;
 			case 'c': 
 				if ((optind < argc && argv[optind][0] != '-') && optind != argc-1){
-                                        printf("Опция --fill_color принимает только один аргумент.\n%s и следующие аргументы будут проигнорированы.\n", argv[optind]);
-                                        err = ERR_OPT;
-                                } else {
+                    printf("Опция --fill_color принимает только один аргумент.\n%s и следующие аргументы будут проигнорированы.\n", argv[optind]);
+                    err = ERR_OPT;
+                } else {
 					if (fill_color){
 						int checker = sscanf(optarg, "%d.%d.%d", &fill_color->R, &fill_color->G, &fill_color->B);
 						if ((checker == 3) && check_color(fill_color->R, fill_color->G, fill_color->B)){
@@ -1217,9 +1217,9 @@ int main(int argc, char** argv){
 				break;
 			case 'r':
 				if ((optind < argc && argv[optind][0] != '-') && optind != argc-1){
-                                        printf("Опция --right_down принимает только один аргумент.\n%s и следующие аргументы будут проигнорированы.\n", argv[optind]);
-                                        err = ERR_OPT;
-                                } else {
+                    printf("Опция --right_down принимает только один аргумент.\n%s и следующие аргументы будут проигнорированы.\n", argv[optind]);
+                    err = ERR_OPT;
+                } else {
 					if (r_point){
 						int checker = sscanf(optarg, "%d.%d", &r_point->x, &r_point->y);
 						if (checker == 2){
@@ -1244,9 +1244,9 @@ int main(int argc, char** argv){
 				break;
 			case 'T':
 				if ((optind < argc && argv[optind][0] != '-') && optind != argc-1){
-                                        printf("Опция --exchange_type принимает только один аргумент.\n%s и следующие аргументы будут проигнорированы.\n", argv[optind]);
-                                        err = ERR_OPT;
-                                } else {
+                    printf("Опция --exchange_type принимает только один аргумент.\n%s и следующие аргументы будут проигнорированы.\n", argv[optind]);
+                    err = ERR_OPT;
+                } else {
 					if (exchange_data){
 						if (!strcmp(optarg, "clockwise") || !strcmp(optarg, "counterclockwise") || !strcmp(optarg, "diagonals")){
 							exchange_data->type = optarg;
@@ -1265,7 +1265,7 @@ int main(int argc, char** argv){
 				if ((optind < argc && argv[optind][0] == '-') || optind == argc-1){
 					info_opt = 1;
 				} else {
-                                        printf("Опция --info не принимает аргументов.\n%s и последующие аргументы будут проигнорированы.\n", argv[optind]);
+                    printf("Опция --info не принимает аргументов.\n%s и последующие аргументы будут проигнорированы.\n", argv[optind]);
 					err = ERR_OPT;
 				}
 				break;
